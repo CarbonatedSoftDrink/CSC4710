@@ -45,6 +45,22 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/homepage":
+            	System.out.println("The action is: homepage");
+                showHomePage(request, response);           	
+                break;
+            case "/mainpage":
+            	System.out.println("The action is: mainpage");
+                showMainPage(request, response);           	
+                break;
+            case "/login":
+            	System.out.println("The action is: login");
+                showLogin(request, response);           	
+                break;
+            case "/signup":
+            	System.out.println("The action is: signup");
+                showSignup(request, response);           	
+                break;
             case "/list": 
                 System.out.println("The action is: list");
                 listPeople(request, response);           	
@@ -78,6 +94,43 @@ public class ControlServlet extends HttpServlet {
             throw new ServletException(ex);
         }
         System.out.println("doGet finished: 111111111111111111111111111111111111");
+    }
+    
+    private void showSignup(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+    	System.out.println("showSignup started: 00000000000000000000000000000000000");
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("SignUpPage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("showSignup finished: 00000000000000000000000000000000000");
+    }
+    
+    private void showLogin(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+    	System.out.println("showLogin started: 00000000000000000000000000000000000");
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("LoginPage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("showLogin finished: 00000000000000000000000000000000000");
+    }
+    
+    private void showMainPage(HttpServletRequest request, HttpServletResponse response)
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showMainPage started: 00000000000000000000000000000000000");
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("MainPage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("showMainPage finished: 00000000000000000000000000000000000");
+    }
+    
+    private void showHomePage(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showHomePage started: 00000000000000000000000000000000000");
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("HomePage.jsp");       
+        dispatcher.forward(request, response);
+     
+        System.out.println("showHomePage finished: 111111111111111111111111111111111111");
     }
     
     private void listPeople(HttpServletRequest request, HttpServletResponse response)
