@@ -46,7 +46,7 @@ public class UserDAO {
                 throw new SQLException(e);
             }
             connect = (Connection) DriverManager
-                    .getConnection("jdbc:mysql://127.0.0.1:3306/testdb?"
+                    .getConnection("jdbc:mysql://127.0.0.1:3306/twitterbase?"
                             + "useSSL=false&user=john&password=pass1234");
             System.out.println(connect);
         }
@@ -65,7 +65,7 @@ public class UserDAO {
             String FirstName = resultSet.getString("FirstName");
             String LastName = resultSet.getString("LastName");
             int Age = resultSet.getInt("Age");
-            String PPAddress = resultSet.getString("PPAddress");
+            int PPAddress = resultSet.getInt("PPAddress");
             int PPWallet = resultSet.getInt("PPWallet");
             int DollarWallet = resultSet.getInt("DollarWallet");
 
@@ -92,7 +92,7 @@ public class UserDAO {
         preparedStatement.setString(2, user.FirstName);
         preparedStatement.setString(3, user.LastName);
         preparedStatement.setInt(4, user.Age);
-        preparedStatement.setString(5, user.PPAddress);
+        preparedStatement.setInt(5, user.PPAddress);
         preparedStatement.setInt(6, user.PPWallet);
         preparedStatement.setInt(7, user.DollarWallet);
 //		preparedStatement.executeUpdate();
@@ -125,7 +125,7 @@ public class UserDAO {
         preparedStatement.setString(2, user.FirstName);
         preparedStatement.setString(3, user.LastName);
         preparedStatement.setInt(4, user.Age);
-        preparedStatement.setString(5, user.PPAddress);
+        preparedStatement.setInt(5, user.PPAddress);
         preparedStatement.setInt(6, user.PPWallet);
         preparedStatement.setInt(7, user.DollarWallet);
         preparedStatement.setInt(8, user.id);
@@ -152,7 +152,7 @@ public class UserDAO {
             String FirstName = resultSet.getString("FirstName");
             String LastName = resultSet.getString("LastName");
             int Age = resultSet.getInt("Age");
-            String PPAddress = resultSet.getString("PPAddress");
+            int PPAddress = resultSet.getInt("PPAddress");
             int PPWallet = resultSet.getInt("PPWallet");
             int DollarWallet = resultSet.getInt("DollarWallet");
 

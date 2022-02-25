@@ -6,7 +6,7 @@ public class User {
     protected String FirstName;
     protected String LastName;
     protected int Age;
-    protected String PPAddress;
+    protected int PPAddress;
     protected int PPWallet;
     protected int DollarWallet;
 
@@ -17,12 +17,17 @@ public class User {
         this.id = id;
     }
 
-    public User(int id, String UserID, String FirstName, String LastName, int Age, String PPAddress, int PPWallet, int DollarWallet) {
+    public User(int id, String UserID, String FirstName, String LastName, int Age, int PPAddress, int PPWallet, int DollarWallet) {
         this(UserID, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
         this.id = id;
     }
+    
+    public User(int id, String UserID, String FirstName, String LastName, int Age, int PPAddress) {
+        this(UserID, FirstName, LastName, Age, PPAddress);
+        this.id = id;
+    }
 
-    public User(String UserID, String FirstName, String LastName, int Age, String PPAddress, int PPWallet, int DollarWallet) {
+    public User(String UserID, String FirstName, String LastName, int Age, int PPAddress, int PPWallet, int DollarWallet) {
         this.UserID = UserID;
         this.FirstName = FirstName;
         this.LastName = LastName;
@@ -30,6 +35,16 @@ public class User {
         this.PPAddress = PPAddress;
         this.PPWallet = PPWallet;
         this.DollarWallet = DollarWallet;
+    }
+    
+    public User(String UserID, String FirstName, String LastName, int Age, int PPAddress) {
+        this.UserID = UserID;
+        this.FirstName = FirstName;
+        this.LastName = LastName;
+        this.Age = Age;
+        this.PPAddress = PPAddress;
+        this.PPWallet = 0;
+        this.DollarWallet = 0;
     }
 
     public int getId() {
@@ -72,11 +87,11 @@ public class User {
         Age = age;
     }
 
-    public String getPPAddress() {
+    public int getPPAddress() {
         return PPAddress;
     }
 
-    public void setPPAddress(String PPAddress) {
+    public void setPPAddress(int PPAddress) {
         this.PPAddress = PPAddress;
     }
 

@@ -11,9 +11,12 @@
 <div align="center">
         <h1>Welcome to Twitter</h1>
         <h1>You are now signed in!</h1>
-        <h2>
-            <a href="signout">Sign Out</a>
-        </h2>
+        <h2><a href="mainpage">Sign Out</a></h2>
+</div>
+
+<div align="center">
+	<h3>Your PPWallet amount is: N/A</h3>
+	<h3>Your U.S. Dollar Wallet amount is: N/A</h3>
 </div>
 
 <div align="center">

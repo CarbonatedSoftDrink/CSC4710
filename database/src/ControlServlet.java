@@ -25,9 +25,13 @@ import java.sql.PreparedStatement;
 public class ControlServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private PeopleDAO peopleDAO;
+    private UserDAO userDAO;
+    private int globalID = 0;
+    private int ppNumber = 1000;
  
     public void init() {
         peopleDAO = new PeopleDAO(); 
+    	userDAO = new UserDAO();
     }
  
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -45,6 +49,14 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/signout":
+            	System.out.println("The action is: signout");
+                signOut(request, response);           	
+                break;
+            case "/insertNewUser":
+            	System.out.println("The action is: insertNewUser");
+                insertUser(request, response);           	
+                break;
             case "/homepage":
             	System.out.println("The action is: homepage");
                 showHomePage(request, response);           	
@@ -94,6 +106,40 @@ public class ControlServlet extends HttpServlet {
             throw new ServletException(ex);
         }
         System.out.println("doGet finished: 111111111111111111111111111111111111");
+    }
+    
+    private void signOut(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+    	System.out.println("signOut started: 00000000000000000000000000000000000");
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("MainPage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("signOut finished: 00000000000000000000000000000000000");
+    }
+    
+    private void insertUser(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException {
+        System.out.println("insertUser started: 000000000000000000000000000");
+     
+        //int id = Integer.parseInt(request.getParameter("id"));
+        int id = globalID;
+        globalID += 1;
+        System.out.println("id is:" + id);
+        String userid = request.getParameter("username");
+        String firstname = request.getParameter("fname");
+        String lastname = request.getParameter("lname");
+        int age = Integer.parseInt(request.getParameter("age"));
+        int ppaddress = ppNumber;
+        ppNumber += 1;
+        System.out.println("userid:" + userid + ", firstname:" + firstname + ", lastname:" + lastname + ", age:" + age);
+     
+        User newUser = new User(id, userid, firstname, lastname, age, ppaddress);
+        userDAO.insert(newUser);
+     
+        System.out.println("Ask the browser to call the homepage action next automatically");
+        response.sendRedirect("homepage");  //
+     
+        System.out.println("insertUser finished: 11111111111111111111111111");   
     }
     
     private void showSignup(HttpServletRequest request, HttpServletResponse response) 

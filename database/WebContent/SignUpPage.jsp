@@ -15,21 +15,25 @@
 </div>
 
 <div align="center">
-	<form action="/action_page.php">
-	<label for="username">User ID:</label>
-	<input type="text" id="username" name="username"><br><br>
-  	<label for="fname">First name:</label>
-  	<input type="text" id="fname" name="fname"><br><br>
-  	<label for="lname">Last name:</label>
-  	<input type="text" id="lname" name="lname"><br><br>
-  	<label for="age">Age:</label>
-  	<input type="text" id="age" name="age"><br><br>
-  	<label for="password">Password:</label>
-  	<input type="password" id="password" name="password"><br><br>
-  	<label for="confirmPW">Confirm Password:</label>
-  	<input type="password" id="confirmPW" name="confirmPW"><br><br>
-  	<input type="submit" value="Submit">
-</form> 
+	<form action="insertNewUser" method="post">
+	
+		<c:if test="${user != null}">
+        	<input type="hidden" name="id" value="<c:out value='${user.id}' />" />
+        </c:if>  
+		<label for="username">User ID:</label>
+		<input type="text" id="username" name="username"><br><br>
+	  	<label for="fname">First name:</label>
+	  	<input type="text" id="fname" name="fname"><br><br>
+	  	<label for="lname">Last name:</label>
+	  	<input type="text" id="lname" name="lname"><br><br>
+	  	<label for="age">Age:</label>
+	  	<input type="text" id="age" name="age"><br><br>
+	  	<label for="password">Password:</label>
+	  	<input type="password" id="password" name="password"><br><br>
+	  	<label for="confirmPW">Confirm Password:</label>
+	  	<input type="password" id="confirmPW" name="confirmPW"><br><br>
+	  	<input type="submit" value="Submit">
+	</form> 
 </div>
 
 </body>
