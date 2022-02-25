@@ -10,7 +10,7 @@
 
 <div align="center">
 	<h1>Sign Up for Twitter</h1>
-	<a href="mainpage">Return Home</a>
+	<h2><a href="mainpage">Return Home</a></h2>
 	<br><br>
 </div>
 
