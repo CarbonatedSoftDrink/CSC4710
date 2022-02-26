@@ -49,6 +49,10 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/rootActivate":
+            	System.out.println("The action is: rootActivate");
+                rootReset(request, response);           	
+                break;
             case "/signout":
             	System.out.println("The action is: signout");
                 signOut(request, response);           	
@@ -108,6 +112,17 @@ public class ControlServlet extends HttpServlet {
         System.out.println("doGet finished: 111111111111111111111111111111111111");
     }
     
+    private void rootReset(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+    	System.out.println("rootReset started: 00000000000000000000000000000000000");
+    	
+    	userDAO.rootReset();
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("MainPage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("rootReset finished: 00000000000000000000000000000000000");
+    }
+    
     private void signOut(HttpServletRequest request, HttpServletResponse response) 
     		throws SQLException, IOException, ServletException{
     	System.out.println("signOut started: 00000000000000000000000000000000000");
@@ -122,9 +137,6 @@ public class ControlServlet extends HttpServlet {
         System.out.println("insertUser started: 000000000000000000000000000");
      
         //int id = Integer.parseInt(request.getParameter("id"));
-        int id = globalID;
-        globalID += 1;
-        System.out.println("id is:" + id);
         String userid = request.getParameter("username");
         String firstname = request.getParameter("fname");
         String lastname = request.getParameter("lname");
@@ -133,7 +145,7 @@ public class ControlServlet extends HttpServlet {
         ppNumber += 1;
         System.out.println("userid:" + userid + ", firstname:" + firstname + ", lastname:" + lastname + ", age:" + age);
      
-        User newUser = new User(id, userid, firstname, lastname, age, ppaddress);
+        User newUser = new User(userid, firstname, lastname, age, ppaddress);
         userDAO.insert(newUser);
      
         System.out.println("Ask the browser to call the homepage action next automatically");

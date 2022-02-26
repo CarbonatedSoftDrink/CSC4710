@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Twitter Home Page</title>
+<title>Root Twitter Home Page</title>
 </head>
 <body>
 
@@ -12,9 +12,9 @@
         <h1>Welcome to Twitter</h1>
         <h1>You are now signed in as Root User!</h1>
         <h2>
-            <a href="signout">Sign Out</a>
+            <a href=mainpage>Sign Out</a>
         </h2>
-        <button>Initialize Database Tables</button>
+        <h2><a href=rootActivate>Initialize Database Tables</a></h2>
 </div>
 
 </body>
