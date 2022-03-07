@@ -33,7 +33,7 @@ public class Follower {
     }
 
     public void setUserID(String userID) {
-        UserID = userID;
+        this.UserID = userID;
     }
 
     public String getFollowingUserID() {
@@ -41,6 +41,6 @@ public class Follower {
     }
 
     public void setFollowingUserID(String followingUserID) {
-        FollowingUserID = followingUserID;
+        this.FollowingUserID = followingUserID;
     }
 }

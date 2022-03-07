@@ -10,7 +10,7 @@
 
 <div align="center">
         <h1>Welcome to Twitter</h1>
-        <h1>You are now signed in!</h1>
+        <h1>You are now signed in as ${username}!</h1>
         <h2><a href="mainpage">Sign Out</a></h2>
 </div>
 

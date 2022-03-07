@@ -1,7 +1,7 @@
 public class Transaction {
     protected int id;
-    protected String SenderAddress;
-    protected String ReceiverAddress;
+    protected int SenderAddress;
+    protected int ReceiverAddress;
     protected double PPAmount;
     protected double DollarAmount;
 
@@ -9,12 +9,12 @@ public class Transaction {
         this.id = id;
     }
 
-    public Transaction(int id, String SenderAddress, String ReceiverAddress, double PPAmount, double DollarAmount) {
+    public Transaction(int id, int SenderAddress, int ReceiverAddress, double PPAmount, double DollarAmount) {
         this(SenderAddress, ReceiverAddress, PPAmount, DollarAmount);
         this.id = id;
     }
 
-    public Transaction(String SenderAddress, String ReceiverAddress, double PPAmount, double DollarAmount) {
+    public Transaction(int SenderAddress, int ReceiverAddress, double PPAmount, double DollarAmount) {
         this.SenderAddress = SenderAddress;
         this.ReceiverAddress = ReceiverAddress;
         this.PPAmount = PPAmount;
@@ -29,19 +29,19 @@ public class Transaction {
         this.id = id;
     }
 
-    public String getSenderAddress() {
+    public int getSenderAddress() {
         return SenderAddress;
     }
 
-    public void setSenderAddress(String senderAddress) {
+    public void setSenderAddress(int senderAddress) {
         SenderAddress = senderAddress;
     }
 
-    public String getReceiverAddress() {
+    public int getReceiverAddress() {
         return ReceiverAddress;
     }
 
-    public void setReceiverAddress(String receiverAddress) {
+    public void setReceiverAddress(int receiverAddress) {
         ReceiverAddress = receiverAddress;
     }
 

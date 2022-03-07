@@ -34,6 +34,7 @@
 	  	<input type="password" id="confirmPW" name="confirmPW"><br><br>
 	  	<input type="submit" value="Submit">
 	</form> 
+	<h3>${info}</h3>
 </div>
 
 </body>

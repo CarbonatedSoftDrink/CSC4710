@@ -1,7 +1,7 @@
 public class LikedTweet {
     protected int id;
     protected String UserID;
-    protected String FollowingUserID;
+    protected int LikedTweetID;
 
     public LikedTweet() {
     }
@@ -10,14 +10,14 @@ public class LikedTweet {
         this.id = id;
     }
 
-    public LikedTweet (int id, String UserID, String FollowingUserID){
-        this(UserID, FollowingUserID);
+    public LikedTweet (int id, String UserID, int LikedTweetID){
+        this(UserID, LikedTweetID);
         this.id = id;
     }
 
-    public LikedTweet(String UserID, String FollowingUserID){
+    public LikedTweet(String UserID, int LikedTweetID){
         this.UserID = UserID;
-        this.FollowingUserID = FollowingUserID;
+        this.LikedTweetID = LikedTweetID;
     }
 
     public int getId() {
@@ -33,14 +33,14 @@ public class LikedTweet {
     }
 
     public void setUserID(String userID) {
-        UserID = userID;
+        this.UserID = userID;
     }
 
-    public String getFollowingUserID() {
-        return FollowingUserID;
+    public int getLikedTweetID() {
+        return LikedTweetID;
     }
 
-    public void setFollowingUserID(String followingUserID) {
-        FollowingUserID = followingUserID;
+    public void setLikedTweetID(int likedTweetID) {
+        this.LikedTweetID = likedTweetID;
     }
 }
