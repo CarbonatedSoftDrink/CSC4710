@@ -25,9 +25,15 @@ import java.sql.PreparedStatement;
 public class ControlServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private PeopleDAO peopleDAO;
+    private UserDAO userDAO;
+    public User LoggedIn;
+    public String info = "";
+    private int globalID = 1;
+    private int ppNumber = 1012;
  
     public void init() {
         peopleDAO = new PeopleDAO(); 
+    	userDAO = new UserDAO();
     }
  
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -45,6 +51,42 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/verifyLogin":
+            	System.out.println("The action is: verifyLogin");
+                verifyLogin(request, response);           	
+                break;
+            case "/rootActivate":
+            	System.out.println("The action is: rootActivate");
+                rootReset(request, response);           	
+                break;
+            case "/signout":
+            	System.out.println("The action is: signout");
+                signOut(request, response);           	
+                break;
+            case "/insertNewUser":
+            	System.out.println("The action is: insertNewUser");
+                insertUser(request, response);           	
+                break;
+            case "/homepage":
+            	System.out.println("The action is: homepage");
+                showHomePage(request, response);           	
+                break;
+            case "/mainpage":
+            	System.out.println("The action is: mainpage");
+                showMainPage(request, response);           	
+                break;
+            case "/rootpage":
+            	System.out.println("The action is: rootpage");
+                showRootPage(request, response);           	
+                break;
+            case "/login":
+            	System.out.println("The action is: login");
+                showLogin(request, response);           	
+                break;
+            case "/signup":
+            	System.out.println("The action is: signup");
+                showSignup(request, response);           	
+                break;
             case "/list": 
                 System.out.println("The action is: list");
                 listPeople(request, response);           	
@@ -78,6 +120,176 @@ public class ControlServlet extends HttpServlet {
             throw new ServletException(ex);
         }
         System.out.println("doGet finished: 111111111111111111111111111111111111");
+    }
+    
+    private void verifyLogin(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException {
+        System.out.println("verifyLogin started: 000000000000000000000000000");
+     
+        String userid = request.getParameter("username");
+        String password = request.getParameter("password");
+        User loginAttempt = null;
+        System.out.println("userid:" + userid + ", password:" + password);
+     
+        //User newUser = new User(userid, password, firstname, lastname, age, ppaddress);
+        //userDAO.insert(newUser);
+        //LoggedIn = newUser;
+        
+        if (userid.equals("root") && password.equals("pass1234")) {
+        	System.out.println("Ask the browser to call the rootpage action next automatically");
+            response.sendRedirect("rootpage");  //
+         
+            System.out.println("verifyLogin finished: 11111111111111111111111111");
+        }
+        else {
+        	loginAttempt = userDAO.verifyUser(userid, password);
+        	
+        	if (loginAttempt != null) {
+        		LoggedIn = loginAttempt;
+            	System.out.println("Ask the browser to call the homepage action next automatically");
+                response.sendRedirect("homepage");  //
+             
+                System.out.println("verifyLogin finished: 11111111111111111111111111");
+            }
+            else {
+            	System.out.println("Ask the browser to call the login action next automatically");
+            	info = "Login failed. Please try again.";
+                response.sendRedirect("login");  //
+             
+                System.out.println("verifyLogin finished: 11111111111111111111111111");
+            }
+        }
+    }
+    
+    private void rootReset(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+    	System.out.println("rootReset started: 00000000000000000000000000000000000");
+    	
+    	userDAO.rootReset();
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("MainPage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("rootReset finished: 00000000000000000000000000000000000");
+    }
+    
+    private void signOut(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+    	System.out.println("signOut started: 00000000000000000000000000000000000");
+        
+    	LoggedIn = null;
+        RequestDispatcher dispatcher = request.getRequestDispatcher("MainPage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("signOut finished: 00000000000000000000000000000000000");
+    }
+    
+    private void insertUser(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException {
+        System.out.println("insertUser started: 000000000000000000000000000");
+     
+        //int id = Integer.parseInt(request.getParameter("id"));
+        String userid = request.getParameter("username");
+        String password = request.getParameter("password");
+        String confirm = request.getParameter("confirmPW");
+        String firstname = request.getParameter("fname");
+        String lastname = request.getParameter("lname");
+        int age;
+        try {
+            age = Integer.parseInt(request.getParameter("age"));
+        }
+        catch (NumberFormatException e){
+        	age = 0;
+        }
+        //int age = Integer.parseInt(request.getParameter("age"));
+        int ppaddress = ppNumber;
+        //ppNumber += 1;
+        System.out.println("userid:" + userid + ", password:" + password + ", firstname:" + firstname + ", lastname:" + lastname + ", age:" + age);
+     
+        if (password.equals(confirm) == false) {
+        	info = "Passwords do not match. Please try again.";
+        	System.out.println("Passwords do not match. Ask the browser to call the signup action next automatically");
+            response.sendRedirect("signup");  //
+         
+            System.out.println("insertUser finished: 11111111111111111111111111"); 
+        }
+        else if(userid.equals("") || password.equals("") || confirm.equals("") || firstname.equals("") || lastname.equals("") || age == 0) {
+        	info = "One or more form fields were missing. Please try again.";
+        	System.out.println("One or more form fields are missing. Ask the browser to call the signup action next automatically");
+            response.sendRedirect("signup");  //
+         
+            System.out.println("insertUser finished: 11111111111111111111111111"); 
+        }
+        else {
+        	if (userDAO.checkID(userid) == false) {
+        		info = "User ID has already been taken. Please try again.";
+            	System.out.println("UserID is not unique. Ask the browser to call the signup action next automatically");
+                response.sendRedirect("signup");  //
+             
+                System.out.println("insertUser finished: 11111111111111111111111111"); 
+        	}
+        	else {
+        		User newUser = new User(userid, password, firstname, lastname, age, ppaddress);
+                userDAO.insert(newUser);
+                LoggedIn = newUser;
+                ppNumber += 1;
+             
+                System.out.println("Ask the browser to call the homepage action next automatically");
+                response.sendRedirect("homepage");  //
+             
+                System.out.println("insertUser finished: 11111111111111111111111111");
+        	}
+        }
+    }
+    
+    private void showSignup(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+    	System.out.println("showSignup started: 00000000000000000000000000000000000");
+    	
+    	request.setAttribute("info", info);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("SignUpPage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("showSignup finished: 00000000000000000000000000000000000");
+    }
+    
+    private void showLogin(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+    	System.out.println("showLogin started: 00000000000000000000000000000000000");
+        
+    	request.setAttribute("info", info);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("LoginPage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("showLogin finished: 00000000000000000000000000000000000");
+    }
+    
+    private void showRootPage(HttpServletRequest request, HttpServletResponse response)
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showRootPage started: 00000000000000000000000000000000000");
+        
+        info = "";
+        RequestDispatcher dispatcher = request.getRequestDispatcher("RootHomePage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("showRootPage finished: 00000000000000000000000000000000000");
+    }
+    
+    private void showMainPage(HttpServletRequest request, HttpServletResponse response)
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showMainPage started: 00000000000000000000000000000000000");
+        
+        info = "";
+        RequestDispatcher dispatcher = request.getRequestDispatcher("MainPage.jsp");       
+        dispatcher.forward(request, response);
+        System.out.println("showMainPage finished: 00000000000000000000000000000000000");
+    }
+    
+    private void showHomePage(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showHomePage started: 00000000000000000000000000000000000");
+        
+        info = "";
+        request.setAttribute("username", LoggedIn.getUserID());
+        RequestDispatcher dispatcher = request.getRequestDispatcher("HomePage.jsp");       
+        dispatcher.forward(request, response);
+     
+        System.out.println("showHomePage finished: 111111111111111111111111111111111111");
     }
     
     private void listPeople(HttpServletRequest request, HttpServletResponse response)
