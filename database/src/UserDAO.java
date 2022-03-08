@@ -385,9 +385,76 @@ public class UserDAO {
         System.out.println("invalid user 2");
         return verified;
     }
+    
+    public boolean checkID(String check) throws SQLException {
+    	List<User> listUser = new ArrayList<User>();
+        String sql = "SELECT * FROM User WHERE userid LIKE '%" + check + "%'";
+        
+        connect_func();
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        while (resultSet.next()) {
+            int id = resultSet.getInt("id");
+            String UserID = resultSet.getString("UserID");
+            String Password = resultSet.getString("Password");
+            String FirstName = resultSet.getString("FirstName");
+            String LastName = resultSet.getString("LastName");
+            int Age = resultSet.getInt("Age");
+            int PPAddress = resultSet.getInt("PPAddress");
+            int PPWallet = resultSet.getInt("PPWallet");
+            int DollarWallet = resultSet.getInt("DollarWallet");
+
+            User user = new User(id, UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
+            listUser.add(user);
+        }
+        resultSet.close();
+        statement.close();
+        disconnect();
+        if (listUser.size() > 0) {
+        	return false;
+        }
+        else {
+        	return true;
+        }
+    }
 
     public boolean insert(User user) throws SQLException {
         connect_func();
+        List<User> listUser = new ArrayList<User>();
+        boolean check = true;
+        while (check == true) {
+            String sql = "SELECT * FROM User WHERE ppaddress LIKE '%" + user.PPAddress + "%'";
+            
+            statement =  (Statement) connect.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String UserID = resultSet.getString("UserID");
+                String Password = resultSet.getString("Password");
+                String FirstName = resultSet.getString("FirstName");
+                String LastName = resultSet.getString("LastName");
+                int Age = resultSet.getInt("Age");
+                int PPAddress = resultSet.getInt("PPAddress");
+                int PPWallet = resultSet.getInt("PPWallet");
+                int DollarWallet = resultSet.getInt("DollarWallet");
+
+                User checkUser = new User(id, UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
+                listUser.add(checkUser);
+            }
+            resultSet.close();
+            statement.close();
+            
+            if (listUser.size() > 0) {
+            	user.PPAddress += 1;
+            	listUser.clear();
+            }
+            else {
+            	check = false;
+            }
+        }
+        
         String sql = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (?, ?, ?, ?, ?, ?, ?, ?)";
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
         preparedStatement.setString(1, user.UserID);

@@ -29,7 +29,7 @@ public class ControlServlet extends HttpServlet {
     public User LoggedIn;
     public String info = "";
     private int globalID = 1;
-    private int ppNumber = 1001;
+    private int ppNumber = 1012;
  
     public void init() {
         peopleDAO = new PeopleDAO(); 
@@ -201,7 +201,7 @@ public class ControlServlet extends HttpServlet {
         }
         //int age = Integer.parseInt(request.getParameter("age"));
         int ppaddress = ppNumber;
-        ppNumber += 1;
+        //ppNumber += 1;
         System.out.println("userid:" + userid + ", password:" + password + ", firstname:" + firstname + ", lastname:" + lastname + ", age:" + age);
      
         if (password.equals(confirm) == false) {
@@ -219,14 +219,24 @@ public class ControlServlet extends HttpServlet {
             System.out.println("insertUser finished: 11111111111111111111111111"); 
         }
         else {
-        	User newUser = new User(userid, password, firstname, lastname, age, ppaddress);
-            userDAO.insert(newUser);
-            LoggedIn = newUser;
-         
-            System.out.println("Ask the browser to call the homepage action next automatically");
-            response.sendRedirect("homepage");  //
-         
-            System.out.println("insertUser finished: 11111111111111111111111111");
+        	if (userDAO.checkID(userid) == false) {
+        		info = "User ID has already been taken. Please try again.";
+            	System.out.println("UserID is not unique. Ask the browser to call the signup action next automatically");
+                response.sendRedirect("signup");  //
+             
+                System.out.println("insertUser finished: 11111111111111111111111111"); 
+        	}
+        	else {
+        		User newUser = new User(userid, password, firstname, lastname, age, ppaddress);
+                userDAO.insert(newUser);
+                LoggedIn = newUser;
+                ppNumber += 1;
+             
+                System.out.println("Ask the browser to call the homepage action next automatically");
+                response.sendRedirect("homepage");  //
+             
+                System.out.println("insertUser finished: 11111111111111111111111111");
+        	}
         }
     }
     
@@ -254,6 +264,7 @@ public class ControlServlet extends HttpServlet {
     		throws SQLException, IOException, ServletException{
         System.out.println("showRootPage started: 00000000000000000000000000000000000");
         
+        info = "";
         RequestDispatcher dispatcher = request.getRequestDispatcher("RootHomePage.jsp");       
         dispatcher.forward(request, response);
         System.out.println("showRootPage finished: 00000000000000000000000000000000000");
