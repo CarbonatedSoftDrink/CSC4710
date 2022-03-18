@@ -15,8 +15,18 @@
 </div>
 
 <div align="center">
-	<h3>Your PPWallet amount is: N/A</h3>
-	<h3>Your U.S. Dollar Wallet amount is: N/A</h3>
+	<h3>Your PPWallet amount is: ${PPA}</h3>
+	<h3>Your U.S. Dollar Wallet amount is: ${USA}</h3>
+</div>
+
+<div align="center">
+	<h3>
+	<a href="buyPage">Buy PPS</a>
+	&nbsp;&nbsp;&nbsp;
+	<a href="buyPage">Sell PPS</a>
+	&nbsp;&nbsp;&nbsp;
+	<a href="activities">Activities</a>
+	</h3>
 </div>
 
 <div align="center">

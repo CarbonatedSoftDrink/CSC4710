@@ -51,6 +51,18 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/buyPPS":
+            	System.out.println("The action is: buyCheck");
+            	buyCheck(request, response);
+            	break;
+            case "/buyPage":
+            	System.out.println("The action is: showBuyPage");
+            	showBuyPage(request, response);
+            	break;
+            case "/activities":
+            	System.out.println("The action is: showActivitiesPage");
+            	showActivitiesPage(request, response);
+            	break;
             case "/verifyLogin":
             	System.out.println("The action is: verifyLogin");
                 verifyLogin(request, response);           	
@@ -120,6 +132,57 @@ public class ControlServlet extends HttpServlet {
             throw new ServletException(ex);
         }
         System.out.println("doGet finished: 111111111111111111111111111111111111");
+    }
+    
+    private void buyCheck(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("buyCheck started: 00000000000000000000000000000000000");
+        
+        float buyAmount;
+        float checkAmount;
+        try {
+            buyAmount = Integer.parseInt(request.getParameter("toBuy"));
+        }
+        catch (NumberFormatException e){
+        	buyAmount = 0;
+        }
+        
+        checkAmount = buyAmount / 100;
+        if (checkAmount > LoggedIn.DollarWallet) {
+        	info = "You do not have enough U.S. Dollar to purchase the specified amount of PPS. Please try a lower value.";
+        	System.out.println("Ask the browser to call the buyPage action next automatically");
+            response.sendRedirect("buyPage");  //
+         
+            System.out.println("buyCheck1 finished: 11111111111111111111111111");
+        }
+        else {
+        	userDAO.BuyPPS(LoggedIn, buyAmount);
+        	info = "Successfully purchased PPS!";
+        	LoggedIn = userDAO.getUser(LoggedIn.getId()); // refreshes user data
+        	System.out.println("Ask the browser to call the buyPage action next automatically");
+            response.sendRedirect("buyPage");  //
+            System.out.println("buyCheck2 finished: 11111111111111111111111111");
+        }
+        
+        
+     
+        System.out.println("buyCheck3 finished: 111111111111111111111111111111111111");
+    }
+    
+    private void showBuyPage(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showBuyPage started: 00000000000000000000000000000000000");
+        
+        //info = "";
+        //request.setAttribute("username", LoggedIn.getUserID());
+        request.setAttribute("PPA", LoggedIn.getPPWallet());
+        request.setAttribute("USA", LoggedIn.getDollarWallet());
+        //request.setAttribute("PPAD", LoggedIn.getPPAddress());
+        request.setAttribute("info", info);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("BuyPage.jsp");       
+        dispatcher.forward(request, response);
+     
+        System.out.println("showBuyPage finished: 111111111111111111111111111111111111");
     }
     
     private void verifyLogin(HttpServletRequest request, HttpServletResponse response)
@@ -240,6 +303,21 @@ public class ControlServlet extends HttpServlet {
         }
     }
     
+    private void showActivitiesPage(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showActivitiesPage started: 00000000000000000000000000000000000");
+        
+        info = "";
+        request.setAttribute("username", LoggedIn.getUserID());
+        request.setAttribute("PPA", LoggedIn.getPPWallet());
+        request.setAttribute("USA", LoggedIn.getDollarWallet());
+        request.setAttribute("PPAD", LoggedIn.getPPAddress());
+        RequestDispatcher dispatcher = request.getRequestDispatcher("ActivitiesPage.jsp");       
+        dispatcher.forward(request, response);
+     
+        System.out.println("showActivitiesPage finished: 111111111111111111111111111111111111");
+    }
+    
     private void showSignup(HttpServletRequest request, HttpServletResponse response) 
     		throws SQLException, IOException, ServletException{
     	System.out.println("showSignup started: 00000000000000000000000000000000000");
@@ -286,6 +364,8 @@ public class ControlServlet extends HttpServlet {
         
         info = "";
         request.setAttribute("username", LoggedIn.getUserID());
+        request.setAttribute("PPA", LoggedIn.getPPWallet());
+        request.setAttribute("USA", LoggedIn.getDollarWallet());
         RequestDispatcher dispatcher = request.getRequestDispatcher("HomePage.jsp");       
         dispatcher.forward(request, response);
      

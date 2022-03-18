@@ -358,10 +358,10 @@ public class UserDAO {
         statement.close();
         disconnect();
         
-        System.out.println("THIS IS LIST USER USER:" + listUser.get(0).getUserID());
-        System.out.println("From form:" + loginUser);
-        System.out.println("THIS IS LIST USER PASSWORD:" + listUser.get(0).getPassword());
-        System.out.println("From form:" + loginPassword);        
+        //System.out.println("THIS IS LIST USER USER:" + listUser.get(0).getUserID());
+        //System.out.println("From form:" + loginUser);
+        //System.out.println("THIS IS LIST USER PASSWORD:" + listUser.get(0).getPassword());
+        //System.out.println("From form:" + loginPassword);        
         
         if (listUser.size() > 0) {
         	if (listUser.get(0).getUserID().equals(loginUser) && listUser.get(0).getPassword().equals(loginPassword)) {
@@ -533,5 +533,30 @@ public class UserDAO {
         statement.close();
 
         return user;
+    }
+    
+    public void BuyPPS(User loggedIn, float PPSbuyAmount) throws SQLException {
+    	float dollarAmount = PPSbuyAmount / 100;
+    	float id = loggedIn.getId();
+    	String sql;
+        connect_func();
+        statement = connect.createStatement();
+        
+        sql = "update User set PPWallet=PPWallet-" + PPSbuyAmount + " where id=1;";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        sql = "update User set DollarWallet=DollarWallet+" + dollarAmount + " where id=1;";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        sql = "update User set PPWallet=PPWallet+" + PPSbuyAmount + " where id=" + loggedIn.getId() + ";";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        sql = "update User set DollarWallet=DollarWallet-" + dollarAmount + " where id=" + loggedIn.getId() + ";";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+    	//return true;
     }
 }
