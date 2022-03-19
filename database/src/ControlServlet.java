@@ -148,7 +148,7 @@ public class ControlServlet extends HttpServlet {
         }
         
         checkAmount = buyAmount / 100;
-        if (checkAmount > LoggedIn.DollarWallet) {
+        if (checkAmount > LoggedIn.getBankbalance()) {
         	info = "You do not have enough U.S. Dollar to purchase the specified amount of PPS. Please try a lower value.";
         	System.out.println("Ask the browser to call the buyPage action next automatically");
             response.sendRedirect("buyPage");  //
@@ -175,8 +175,8 @@ public class ControlServlet extends HttpServlet {
         
         //info = "";
         //request.setAttribute("username", LoggedIn.getUserID());
-        request.setAttribute("PPA", LoggedIn.getPPWallet());
-        request.setAttribute("USA", LoggedIn.getDollarWallet());
+        request.setAttribute("PPA", LoggedIn.getPpsbalance());
+        request.setAttribute("USA", LoggedIn.getBankbalance());
         //request.setAttribute("PPAD", LoggedIn.getPPAddress());
         request.setAttribute("info", info);
         RequestDispatcher dispatcher = request.getRequestDispatcher("BuyPage.jsp");       
@@ -301,10 +301,10 @@ public class ControlServlet extends HttpServlet {
         System.out.println("showActivitiesPage started: 00000000000000000000000000000000000");
         
         info = "";
-        request.setAttribute("username", LoggedIn.getUserID());
-        request.setAttribute("PPA", LoggedIn.getPPWallet());
-        request.setAttribute("USA", LoggedIn.getDollarWallet());
-        request.setAttribute("PPAD", LoggedIn.getPPAddress());
+        request.setAttribute("username", LoggedIn.getUsername());
+        request.setAttribute("PPA", LoggedIn.getPpsbalance());
+        request.setAttribute("USA", LoggedIn.getBankbalance());
+        request.setAttribute("PPAD", LoggedIn.getPpaddress());
         RequestDispatcher dispatcher = request.getRequestDispatcher("ActivitiesPage.jsp");       
         dispatcher.forward(request, response);
      
@@ -356,9 +356,8 @@ public class ControlServlet extends HttpServlet {
         System.out.println("showHomePage started: 00000000000000000000000000000000000");
         
         info = "";
-        request.setAttribute("username", LoggedIn.getUserID());
-        request.setAttribute("PPA", LoggedIn.getPPWallet());
-        request.setAttribute("USA", LoggedIn.getDollarWallet());
+        request.setAttribute("PPA", LoggedIn.getPpsbalance());
+        request.setAttribute("USA", LoggedIn.getBankbalance());
         request.setAttribute("username", LoggedIn.getUsername());
         RequestDispatcher dispatcher = request.getRequestDispatcher("HomePage.jsp");       
         dispatcher.forward(request, response);

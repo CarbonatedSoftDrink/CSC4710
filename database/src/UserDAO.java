@@ -211,7 +211,7 @@ String likesTable = "CREATE TABLE Likes ("
         while (resultSet.next()) {
             int id = resultSet.getInt("id");
             String username = resultSet.getString("username");
-            String password = resultSet.getString("passwrd");
+            String password = resultSet.getString("password");
             String firstname = resultSet.getString("firstname");
             String lastname = resultSet.getString("lastname");
             String birthday = resultSet.getString("birthday");
@@ -371,7 +371,7 @@ String likesTable = "CREATE TABLE Likes ("
         while (resultSet.next()) {
             int id = resultSet.getInt("id");
             String username = resultSet.getString("username");
-            String password = resultSet.getString("passwrd");
+            String password = resultSet.getString("password");
             String firstname = resultSet.getString("firstname");
             String lastname = resultSet.getString("lastname");
             String birthday = resultSet.getString("birthday");
@@ -411,7 +411,7 @@ String likesTable = "CREATE TABLE Likes ("
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String username = resultSet.getString("username");
-                String password = resultSet.getString("passwrd");
+                String password = resultSet.getString("password");
                 String firstname = resultSet.getString("firstname");
                 String lastname = resultSet.getString("lastname");
                 String birthday = resultSet.getString("birthday");
@@ -515,7 +515,7 @@ String likesTable = "CREATE TABLE Likes ("
 
         while (resultSet.next()) {
             String username = resultSet.getString("username");
-            String password = resultSet.getString("passwrd");
+            String password = resultSet.getString("password");
             String firstname = resultSet.getString("firstname");
             String lastname = resultSet.getString("lastname");
             String birthday = resultSet.getString("birthday");
@@ -543,19 +543,19 @@ String likesTable = "CREATE TABLE Likes ("
         connect_func();
         statement = connect.createStatement();
         
-        sql = "update User set PPWallet=PPWallet-" + PPSbuyAmount + " where id=1;";
+        sql = "update Users set ppsbalance=ppsbalance-" + PPSbuyAmount + " where id=1;";
         preparedStatement = connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
         
-        sql = "update User set DollarWallet=DollarWallet+" + dollarAmount + " where id=1;";
+        sql = "update Users set bankbalance=bankbalance+" + dollarAmount + " where id=1;";
         preparedStatement = connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
         
-        sql = "update User set PPWallet=PPWallet+" + PPSbuyAmount + " where id=" + loggedIn.getId() + ";";
+        sql = "update Users set ppsbalance=ppsbalance+" + PPSbuyAmount + " where id=" + loggedIn.getId() + ";";
         preparedStatement = connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
         
-        sql = "update User set DollarWallet=DollarWallet-" + dollarAmount + " where id=" + loggedIn.getId() + ";";
+        sql = "update Users set bankbalance=bankbalance-" + dollarAmount + " where id=" + loggedIn.getId() + ";";
         preparedStatement = connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
     	//return true;
