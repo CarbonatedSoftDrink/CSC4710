@@ -1,154 +1,158 @@
+import java.io.Serializable;
 
-
-public class User {
-    protected int id;
-    protected String UserID;
-    protected String Password;
-    protected String FirstName;
-    protected String LastName;
-    protected int Age;
-    protected int PPAddress;
-    protected int PPWallet;
-    protected double DollarWallet;
-
-    public User() {
-    }
-
-    public User(int id) {
-        this.id = id;
-    }
-
-    public User(int id, String UserID, String FirstName, String LastName, int Age, int PPAddress, int PPWallet, double DollarWallet) {
-        this(UserID, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
-        this.id = id;
+public class User implements Serializable {
+	
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String username;
+    private String password;
+    private String firstname;
+    private String lastname;
+    private String birthday;
+    private Integer streetnumber;
+    private String street;
+    private String city;
+    private String state;
+    private Integer zipcode;
+    private Integer ppsbalance;
+    private Double bankbalance;
+    private Integer ppaddress;
+    
+    public User(int id, String username, String password, String firstname, String lastname, String birthday, int streetnumber, String street, String city, String state, int zipcode, int ppsbalance, double bankbalance, int ppsaddress) {
+    	this.id = id;
+    	this.username = username;
+    	this.password = password;
+    	this.firstname = firstname;
+    	this.lastname = lastname;
+    	this.birthday = birthday;
+    	this.streetnumber = streetnumber;
+    	this.street = street;
+    	this.city = city;
+    	this.state = state;
+    	this.zipcode = zipcode;
+    	this.ppsbalance = ppsbalance;
+    	this.bankbalance = bankbalance;
+    	this.ppaddress = ppaddress;
     }
     
-    public User(int id, String UserID, String FirstName, String LastName, int Age, int PPAddress) {
-        this(UserID, FirstName, LastName, Age, PPAddress);
-        this.id = id;
+    public User(String username, String password, String firstname, String lastname, String birthday, int ppaddress) {
+		this.username = username;
+		this.password = password;
+		this.firstname = firstname;
+		this.birthday = birthday;
+		this.ppaddress = ppaddress;
+	}
+
+	public Integer getId() {
+    	return id;
     }
     
-    public User(int id, String UserID, String Password, String FirstName, String LastName, int Age, int PPAddress) {
-        this(UserID, Password, FirstName, LastName, Age, PPAddress);
-        this.id = id;
-    }
-    
-    public User(int id, String UserID, String Password, String FirstName, String LastName, int Age, int PPAddress, int PPWallet, double DollarWallet) {
-    	this(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
+    public void setId(int id) {
     	this.id = id;
     }
-    
-    public User(String UserID, String Password, String FirstName, String LastName, int Age, int PPAddress, int PPWallet, double DollarWallet) {
-    	this.UserID = UserID;
-        this.Password = Password;
-        this.FirstName = FirstName;
-        this.LastName = LastName;
-        this.Age = Age;
-        this.PPAddress = PPAddress;
-        this.PPWallet = PPWallet;
-        this.DollarWallet = DollarWallet;
-    }
-    
-    public User(String UserID, String Password, String FirstName, String LastName, int Age, int PPAddress) {
-        this.UserID = UserID;
-        this.Password = Password;
-        this.FirstName = FirstName;
-        this.LastName = LastName;
-        this.Age = Age;
-        this.PPAddress = PPAddress;
-        this.PPWallet = 0;
-        this.DollarWallet = 1000;
+
+    public String getUsername() {
+        return username;
     }
 
-    public User(String UserID, String FirstName, String LastName, int Age, int PPAddress, int PPWallet, double DollarWallet) {
-        this.UserID = UserID;
-        this.FirstName = FirstName;
-        this.LastName = LastName;
-        this.Age = Age;
-        this.PPAddress = PPAddress;
-        this.PPWallet = PPWallet;
-        this.DollarWallet = DollarWallet;
-    }
-    
-    public User(String UserID, String FirstName, String LastName, int Age, int PPAddress) {
-        this.UserID = UserID;
-        this.FirstName = FirstName;
-        this.LastName = LastName;
-        this.Age = Age;
-        this.PPAddress = PPAddress;
-        this.PPWallet = 0;
-        this.DollarWallet = 1000;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getUserID() {
-        return UserID;
-    }
-
-    public void setUserID(String UserID) {
-        this.UserID = UserID;
-    }
-    
     public String getPassword() {
-    	return Password;
-    }
-    
-    public void setPassword(String Password) {
-    	this.Password = Password;
+        return password;
     }
 
-    public String getFirstName() {
-        return FirstName;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public void setFirstName(String firstName) {
-        FirstName = firstName;
-    }
+	public String getFirstname() {
+		return firstname;
+	}
 
-    public String getLastName() {
-        return LastName;
-    }
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
+	}
 
-    public void setLastName(String lastName) {
-        LastName = lastName;
-    }
+	public String getLastname() {
+		return lastname;
+	}
 
-    public int getAge() {
-        return Age;
-    }
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
+	}
 
-    public void setAge(int age) {
-        Age = age;
-    }
+	public String getBirthday() {
+		return birthday;
+	}
 
-    public int getPPAddress() {
-        return PPAddress;
-    }
+	public void setBirthday(String birthday) {
+		this.birthday = birthday;
+	}
 
-    public void setPPAddress(int PPAddress) {
-        this.PPAddress = PPAddress;
-    }
+	public Integer getStreetnumber() {
+		return streetnumber;
+	}
 
-    public double getPPWallet() {
-        return PPWallet;
-    }
+	public void setStreetnumber(Integer streetnumber) {
+		this.streetnumber = streetnumber;
+	}
 
-    public void setPPWallet(int PPWallet) {
-        this.PPWallet = PPWallet;
-    }
+	public String getStreet() {
+		return street;
+	}
 
-    public double getDollarWallet() {
-        return DollarWallet;
-    }
+	public void setStreet(String street) {
+		this.street = street;
+	}
 
-    public void setDollarWallet(int dollarWallet) {
-        DollarWallet = dollarWallet;
-    }
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public Integer getZipcode() {
+		return zipcode;
+	}
+
+	public void setZipcode(Integer zipcode) {
+		this.zipcode = zipcode;
+	}
+
+	public Integer getPpsbalance() {
+		return ppsbalance;
+	}
+
+	public void setPpsbalance(Integer ppsbalance) {
+		this.ppsbalance = ppsbalance;
+	}
+
+	public Double getBankbalance() {
+		return bankbalance;
+	}
+
+	public void setBankbalance(Double bankbalance) {
+		this.bankbalance = bankbalance;
+	}
+
+	public Integer getPpaddress() {
+		return ppaddress;
+	}
+
+	public void setPpaddress(Integer ppaddress) {
+		this.ppaddress = ppaddress;
+	}
+	
 }
