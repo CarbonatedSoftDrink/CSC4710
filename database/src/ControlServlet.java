@@ -51,6 +51,14 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/sellPPS":
+            	System.out.println("The action is: sellCheck");
+            	sellCheck(request, response);
+            	break;
+            case "/sellPage":
+            	System.out.println("The action is: showSellPage");
+            	showSellPage(request, response);
+            	break;
             case "/buyPPS":
             	System.out.println("The action is: buyCheck");
             	buyCheck(request, response);
@@ -134,6 +142,53 @@ public class ControlServlet extends HttpServlet {
         System.out.println("doGet finished: 111111111111111111111111111111111111");
     }
     
+    private void sellCheck(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("sellCheck started: 00000000000000000000000000000000000");
+        
+        float sellAmount;
+        float dollarAmount;
+        try {
+            sellAmount = Integer.parseInt(request.getParameter("toSell"));
+        }
+        catch (NumberFormatException e){
+        	sellAmount = 0;
+        }
+        
+        dollarAmount = sellAmount / 100;
+        if (sellAmount > LoggedIn.getPpsbalance()) {
+        	info = "You are trying to sell more PPS than you own. Please try a lower value.";
+        	System.out.println("Ask the browser to call the sellPage action next automatically");
+            response.sendRedirect("sellPage");  //
+         
+            System.out.println("sellCheck1 finished: 11111111111111111111111111");
+        }
+        else {
+        	userDAO.sellPPS(LoggedIn, sellAmount);
+        	info = "Successfully sold " + sellAmount + " PPS!";
+        	LoggedIn = userDAO.getUser(LoggedIn.getId()); // refreshes user data
+        	System.out.println("Ask the browser to call the sellPage action next automatically");
+            response.sendRedirect("sellPage");  //
+            System.out.println("sellCheck2 finished: 11111111111111111111111111");
+        }
+    }
+    
+    private void showSellPage(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showSellPage started: 00000000000000000000000000000000000");
+        
+        //info = "";
+        //request.setAttribute("username", LoggedIn.getUserID());
+        request.setAttribute("PPA", LoggedIn.getPpsbalance());
+        request.setAttribute("USA", LoggedIn.getBankbalance());
+        //request.setAttribute("PPAD", LoggedIn.getPPAddress());
+        request.setAttribute("info", info);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("SellPage.jsp");       
+        dispatcher.forward(request, response);
+     
+        System.out.println("showSellPage finished: 111111111111111111111111111111111111");
+    }
+    
     private void buyCheck(HttpServletRequest request, HttpServletResponse response) 
     		throws SQLException, IOException, ServletException{
         System.out.println("buyCheck started: 00000000000000000000000000000000000");
@@ -157,7 +212,7 @@ public class ControlServlet extends HttpServlet {
         }
         else {
         	userDAO.BuyPPS(LoggedIn, buyAmount);
-        	info = "Successfully purchased PPS!";
+        	info = "Successfully purchased " + buyAmount +" PPS!";
         	LoggedIn = userDAO.getUser(LoggedIn.getId()); // refreshes user data
         	System.out.println("Ask the browser to call the buyPage action next automatically");
             response.sendRedirect("buyPage");  //

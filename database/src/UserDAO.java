@@ -37,7 +37,7 @@ public class UserDAO {
     private Connection connect;
     
     // SQL DATA //
-    String[][] userList = {
+    String[][] userlisttable = {
 			{"root", "pass1234", "root", "root", "0", "0", "0", "0", "0", "0", "1000000000", "0", "0"},
 			{"johnsmith@gmail.com", "johnsmith", "John", "Smith", "10-14-1997", "7641", "Oak Lane", "Detroit", "MI", "48202", "0", "1000.0", "01"},
 			{"angieschnell@gmail.com", "angieschnell", "Angie", "Schnell", "11-18-1964", "1013", "Hornor Avenue", "Tulsa", "OK", "74134", "0", "1000.0", "02"},
@@ -117,7 +117,7 @@ String[][] likesList = {
 };
 
 //SQL QUERIES //
-String usersTable = "CREATE TABLE Users ("
+String userlisttableTable = "CREATE TABLE userlisttable ("
 		+ "id INTEGER NOT NULL AUTO_INCREMENT,"
         + "username VARCHAR(50) NOT NULL UNIQUE,"
         + "password VARCHAR(50) NOT NULL,"
@@ -145,15 +145,15 @@ String transactionsTable = "CREATE TABLE Transactions ("
         + "price DOUBLE,"
         + "check(transtype IN ('buy', 'sell', 'tip')),"
         + "PRIMARY KEY (transid),"
-		+ "FOREIGN KEY (fromuser) REFERENCES Users(username),"
-		+ "FOREIGN KEY (touser) REFERENCES Users(username))";
+		+ "FOREIGN KEY (fromuser) REFERENCES userlisttable(username),"
+		+ "FOREIGN KEY (touser) REFERENCES userlisttable(username))";
 
 String followTable = "CREATE TABLE Follow (" 
         + "followerid VARCHAR(50),"
         + "followeeid VARCHAR(50),"
         + "PRIMARY KEY (followerid, followeeid),"
-        + "FOREIGN KEY (followerid) REFERENCES Users(username),"
-        + "FOREIGN KEY (followeeid) REFERENCES Users(username))";
+        + "FOREIGN KEY (followerid) REFERENCES userlisttable(username),"
+        + "FOREIGN KEY (followeeid) REFERENCES userlisttable(username))";
         
 String tweetsTable = "CREATE TABLE Tweets (" 
         + "tweetid INTEGER NOT NULL AUTO_INCREMENT,"
@@ -161,7 +161,7 @@ String tweetsTable = "CREATE TABLE Tweets ("
         + "author VARCHAR(100) NOT NULL,"
 		+ "`when` DATETIME,"
         + "PRIMARY KEY (tweetid),"
-		+ "FOREIGN KEY (author) REFERENCES Users(username))";
+		+ "FOREIGN KEY (author) REFERENCES userlisttable(username))";
 
 String commentTable = "CREATE TABLE Comments (" 
         + "id INTEGER NOT NULL AUTO_INCREMENT,"
@@ -171,14 +171,14 @@ String commentTable = "CREATE TABLE Comments ("
 		+ "commentor VARCHAR(100),"
         + "PRIMARY KEY (id),"
 		+ "FOREIGN KEY (tweetid) REFERENCES Tweets(tweetid),"
-		+ "FOREIGN KEY (commentor) REFERENCES Users(username))";
+		+ "FOREIGN KEY (commentor) REFERENCES userlisttable(username))";
 
 String likesTable = "CREATE TABLE Likes (" 
         + "tweetid INTEGER NOT NULL,"
 		+ "userid VARCHAR(100),"
         + "PRIMARY KEY (tweetid, userid),"
 		+ "FOREIGN KEY (tweetid) REFERENCES Tweets(tweetid),"
-		+ "FOREIGN KEY (userid) REFERENCES Users(username))";////////////////
+		+ "FOREIGN KEY (userid) REFERENCES userlisttable(username))";////////////////
 
 
     public UserDAO() {
@@ -196,14 +196,16 @@ String likesTable = "CREATE TABLE Likes ("
                 throw new SQLException(e);
             }
             connect = (Connection) DriverManager
-                    .getConnection(dbAddress + dbName, userName, password);
+            		.getConnection("jdbc:mysql://127.0.0.1:3306/twitterbase?"
+                            + "useSSL=false&user=john&password=pass1234");
+                    //.getConnection(dbAddress + dbName, userName, password); this line gave me an error
             System.out.println(connect);
         }
     }
 
-    public List<User> listAllUsers() throws SQLException {
+    public List<User> listAlluserlisttable() throws SQLException {
         List<User> listUser = new ArrayList<User>();
-        String sql = "SELECT * FROM Users";
+        String sql = "SELECT * FROM userlisttable";
         connect_func();
         statement =  (Statement) connect.createStatement();
         ResultSet resultSet = statement.executeQuery(sql);
@@ -242,7 +244,8 @@ String likesTable = "CREATE TABLE Likes ("
     public void rootReset() throws SQLException {
     	try {
             Class.forName(jdbcDriver);
-            connect = DriverManager.getConnection(dbAddress + dbName, userName, password);
+            //connect = DriverManager.getConnection(dbAddress + dbName, userName, password);
+            connect_func();
             statement = connect.createStatement();
             System.out.println();
             try {
@@ -251,21 +254,21 @@ String likesTable = "CREATE TABLE Likes ("
             statement.executeUpdate("DROP TABLE IF EXISTS Tweets");
             statement.executeUpdate("DROP TABLE IF EXISTS Transactions");
             statement.executeUpdate("DROP TABLE IF EXISTS Follow");
-            statement.executeUpdate("DROP TABLE IF EXISTS Users");
+            statement.executeUpdate("DROP TABLE IF EXISTS userlisttable");
             } catch (SQLException e) {
             	e.printStackTrace();
             }
             
             
-            statement.executeUpdate(usersTable);
+            statement.executeUpdate(userlisttableTable);
             statement.executeUpdate(transactionsTable);
             statement.executeUpdate(followTable);
             statement.executeUpdate(tweetsTable);
             statement.executeUpdate(commentTable);
             statement.executeUpdate(likesTable);
             System.out.println("Tables Created");
-            for(int i = 0; i < userList.length; i++) {
-            	statement.executeUpdate("INSERT INTO users (username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppaddress) VALUES ('" + userList[i][0] +"', '" + userList[i][1] + "', '" + userList[i][2] + "', '" + userList[i][3] + "', '" + userList[i][4] + "', " + userList[i][5] + ", '" + userList[i][6] + "', '" + userList[i][7] + "', '" + userList[i][8] + "', " + userList[i][9] + ", " + userList[i][10] + ", " + userList[i][11] + ", " + userList[i][12] + ")");
+            for(int i = 0; i < userlisttable.length; i++) {
+            	statement.executeUpdate("INSERT INTO userlisttable (username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppaddress) VALUES ('" + userlisttable[i][0] +"', '" + userlisttable[i][1] + "', '" + userlisttable[i][2] + "', '" + userlisttable[i][3] + "', '" + userlisttable[i][4] + "', " + userlisttable[i][5] + ", '" + userlisttable[i][6] + "', '" + userlisttable[i][7] + "', '" + userlisttable[i][8] + "', " + userlisttable[i][9] + ", " + userlisttable[i][10] + ", " + userlisttable[i][11] + ", " + userlisttable[i][12] + ")");
             }
             for(int i = 0; i < transactionList.length; i++) {
             	statement.executeUpdate("INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES ('" + transactionList[i][0] + "', '" + transactionList[i][1] + "', " + transactionList[i][2] + ", " + transactionList[i][3] + ", '" + transactionList[i][4] + "', '" + transactionList[i][5] + "', " + transactionList[i][6] + ")");
@@ -290,7 +293,7 @@ String likesTable = "CREATE TABLE Likes ("
         catch (ClassNotFoundException e) {
             System.out.println("An Mysql drivers were not found");
         }
-        statement.close();
+        //statement.close(); uncommenting this line causes an error.
         //statement.executeUpdate(sql11);
     }
     
@@ -299,7 +302,7 @@ String likesTable = "CREATE TABLE Likes ("
         String loginPassword = p;
         User verified = null;
         List<User> listUser = new ArrayList<User>();
-        String sql = "SELECT * FROM Users WHERE username LIKE '%" + loginUser + "%'";
+        String sql = "SELECT * FROM userlisttable WHERE username LIKE '%" + loginUser + "%'";
         
         connect_func();
         statement =  (Statement) connect.createStatement();
@@ -332,10 +335,7 @@ String likesTable = "CREATE TABLE Likes ("
         //System.out.println("From form:" + loginUser);
         //System.out.println("THIS IS LIST USER PASSWORD:" + listUser.get(0).getPassword());
         //System.out.println("From form:" + loginPassword);        
-        System.out.println("THIS IS LIST USER USER:" + listUser.get(0).getId());
-        System.out.println("From form:" + loginUser);
-        System.out.println("THIS IS LIST USER PASSWORD:" + listUser.get(0).getPassword());
-        System.out.println("From form:" + loginPassword);        
+                
         
         if (listUser.size() > 0) {
         	if (listUser.get(0).getUsername().equals(loginUser) && listUser.get(0).getPassword().equals(loginPassword)) {
@@ -362,7 +362,7 @@ String likesTable = "CREATE TABLE Likes ("
     
     public boolean checkID(String check) throws SQLException {
     	List<User> listUser = new ArrayList<User>();
-        String sql = "SELECT * FROM Users WHERE username LIKE '%" + check + "%'";
+        String sql = "SELECT * FROM userlisttable WHERE username LIKE '%" + check + "%'";
         
         connect_func();
         statement =  (Statement) connect.createStatement();
@@ -403,7 +403,7 @@ String likesTable = "CREATE TABLE Likes ("
         List<User> listUser = new ArrayList<User>();
         boolean check = true;
         while (check == true) {
-            String sql = "SELECT * FROM Users WHERE ppaddress LIKE '%" + user.getPpaddress() + "%'";
+            String sql = "SELECT * FROM userlisttable WHERE ppaddress LIKE '%" + user.getPpaddress() + "%'";
             
             statement =  (Statement) connect.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
@@ -440,7 +440,7 @@ String likesTable = "CREATE TABLE Likes ("
             }
         }
         
-        String sql = "insert into Users(username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppbalance, bankbalance, ppaddress) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "insert into userlisttable(username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppbalance, bankbalance, ppaddress) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
         preparedStatement.setString(1, user.getUsername());
         preparedStatement.setString(2, user.getPassword());
@@ -464,7 +464,7 @@ String likesTable = "CREATE TABLE Likes ("
     }
 
     public boolean delete(int id) throws SQLException {
-        String sql = "DELETE FROM Users WHERE id = ?";
+        String sql = "DELETE FROM userlisttable WHERE id = ?";
         connect_func();
 
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
@@ -477,7 +477,7 @@ String likesTable = "CREATE TABLE Likes ("
     }
 
     public boolean update(User user) throws SQLException {
-        String sql = "update Users set username=?, firstname =?, lastname = ?, birthday = ?, streetnumber = ?, street = ?, city = ?, state = ?, zipcode = ?, ppsbalance = ?, bankbalance = ?, ppaddress = ? where id = ?";
+        String sql = "update userlisttable set username=?, firstname =?, lastname = ?, birthday = ?, streetnumber = ?, street = ?, city = ?, state = ?, zipcode = ?, ppsbalance = ?, bankbalance = ?, ppaddress = ? where id = ?";
         connect_func();
 
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
@@ -504,7 +504,7 @@ String likesTable = "CREATE TABLE Likes ("
 
     public User getUser(int id) throws SQLException {
         User user = null;
-        String sql = "SELECT * FROM Users WHERE id = ?";
+        String sql = "SELECT * FROM userlisttable WHERE id = ?";
 
         connect_func();
 
@@ -543,19 +543,44 @@ String likesTable = "CREATE TABLE Likes ("
         connect_func();
         statement = connect.createStatement();
         
-        sql = "update Users set ppsbalance=ppsbalance-" + PPSbuyAmount + " where id=1;";
+        sql = "update userlisttable set ppsbalance=ppsbalance-" + PPSbuyAmount + " where id=1;";
         preparedStatement = connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
         
-        sql = "update Users set bankbalance=bankbalance+" + dollarAmount + " where id=1;";
+        sql = "update userlisttable set bankbalance=bankbalance+" + dollarAmount + " where id=1;";
         preparedStatement = connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
         
-        sql = "update Users set ppsbalance=ppsbalance+" + PPSbuyAmount + " where id=" + loggedIn.getId() + ";";
+        sql = "update userlisttable set ppsbalance=ppsbalance+" + PPSbuyAmount + " where id=" + loggedIn.getId() + ";";
         preparedStatement = connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
         
-        sql = "update Users set bankbalance=bankbalance-" + dollarAmount + " where id=" + loggedIn.getId() + ";";
+        sql = "update userlisttable set bankbalance=bankbalance-" + dollarAmount + " where id=" + loggedIn.getId() + ";";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+    	//return true;
+    }
+    
+    public void sellPPS(User loggedIn, float PPSsellAmount) throws SQLException {
+    	float dollarAmount = PPSsellAmount / 100;
+    	float id = loggedIn.getId();
+    	String sql;
+        connect_func();
+        statement = connect.createStatement();
+        
+        sql = "update userlisttable set ppsbalance=ppsbalance+" + PPSsellAmount + " where id=1;";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        sql = "update userlisttable set bankbalance=bankbalance-" + dollarAmount + " where id=1;";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        sql = "update userlisttable set ppsbalance=ppsbalance-" + PPSsellAmount + " where id=" + loggedIn.getId() + ";";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        sql = "update userlisttable set bankbalance=bankbalance+" + dollarAmount + " where id=" + loggedIn.getId() + ";";
         preparedStatement = connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
     	//return true;

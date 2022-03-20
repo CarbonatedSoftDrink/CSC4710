@@ -23,7 +23,7 @@
 	<h3>
 	<a href="buyPage">Buy PPS</a>
 	&nbsp;&nbsp;&nbsp;
-	<a href="buyPage">Sell PPS</a>
+	<a href="sellPage">Sell PPS</a>
 	&nbsp;&nbsp;&nbsp;
 	<a href="activities">Activities</a>
 	</h3>
