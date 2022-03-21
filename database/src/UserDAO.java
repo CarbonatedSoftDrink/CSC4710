@@ -196,7 +196,6 @@ public class UserDAO {
                 throw new SQLException(e);
             }
             connect = (Connection) DriverManager
-                    .getConnection("jdbc:mysql://127.0.0.1:3306/twitterbase?"
                             + "useSSL=false&user=john&password=pass1234");
             //.getConnection(dbAddress + dbName, userName, password); this line gave me an error
             System.out.println(connect);
@@ -501,6 +500,68 @@ public class UserDAO {
 //        disconnect();
         return rowUpdated;
     }
+    
+    
+    
+    public List getFollowees(User loggedIn) throws SQLException {
+    	List<String> followeeList = new ArrayList(); 
+        String sql = "SELECT * FROM follow WHERE followerid LIKE ?";
+
+        connect_func();
+
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, loggedIn.getUsername() + "%");
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+        	followeeList.add(resultSet.getString("followeeid"));
+        }
+        resultSet.close();
+        statement.close();
+        
+        if(followeeList.isEmpty()) {
+			followeeList.add("");
+		}
+
+        return followeeList;
+    }
+    
+    public List<User> getAllUsers() throws SQLException {
+    	List<User> userList = new ArrayList<User>();
+        User user = null;
+        String sql = "SELECT * FROM Users";
+
+        connect_func();
+
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+        	Integer id = resultSet.getInt("id");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
+
+            user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
+            if(resultSet.getInt("id") != 1) {
+            	userList.add(user);
+        	}
+        }
+        resultSet.close();
+        statement.close();
+
+        return userList;
+    }
 
     public User getUser(int id) throws SQLException {
         User user = null;
@@ -535,6 +596,39 @@ public class UserDAO {
 
         return user;
     }
+    
+    public void updateFollowers(int followerid, int followeeid) throws SQLException {
+    	String sql = "SELECT * FROM Users WHERE id = ?";
+        connect_func();
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setInt(1, followerid);
+        ResultSet followerResult = preparedStatement.executeQuery();
+        String followeeUsername = "";
+        while(followerResult.next()) {
+        	followeeUsername = followerResult.getString("username");
+        }
+        
+        sql = "SELECT * FROM Users WHERE id = ?";
+        connect_func();
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setInt(1, followeeid);
+        ResultSet followeeResult = preparedStatement.executeQuery();
+        
+        String followerUsername = "";
+        while(followeeResult.next()) {
+        	followerUsername = followeeResult.getString("username");
+        }        
+        connect_func();
+        statement = connect.createStatement();
+
+        sql = "insert into follow (followerid, followeeid) values (" + "\"" + followerUsername + "\", " + "\"" + followeeUsername + "\")";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        followeeResult.close();
+        followerResult.close();
+        statement.close();
+	}
 
     public void BuyPPS(User loggedIn, float PPSbuyAmount) throws SQLException {
         float dollarAmount = PPSbuyAmount / 100;

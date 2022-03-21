@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
  
 import javax.servlet.RequestDispatcher;
@@ -28,6 +29,7 @@ public class ControlServlet extends HttpServlet {
     private UserDAO userDAO;
     public User LoggedIn;
     public String info = "";
+    public List followingList;
     private int globalID = 1;
     private int ppNumber = 1012;
  
@@ -51,6 +53,14 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/followUser":
+            	System.out.println("The action is: followUser");
+            	followUser(request, response);
+            	break;
+            case "/followPage":
+            	System.out.println("The action is: showFollowPage");
+            	showFollowPage(request, response);
+            	break;
             case "/sellPPS":
             	System.out.println("The action is: sellCheck");
             	sellCheck(request, response);
@@ -141,8 +151,27 @@ public class ControlServlet extends HttpServlet {
         }
         System.out.println("doGet finished: 111111111111111111111111111111111111");
     }
+
+	private void followUser(HttpServletRequest request, HttpServletResponse response) 
+			throws SQLException, IOException, ServletException {
+		userDAO.updateFollowers(Integer.parseInt(request.getParameter("id")), LoggedIn.getId());
+		response.sendRedirect("followPage");
+	}
+
+	private void showFollowPage(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException {
+		List followeeList = userDAO.getFollowees(LoggedIn);
+		List<User> listUsers = userDAO.getAllUsers();
+		request.setAttribute("FOLLOWEES", followeeList);
+		request.setAttribute("USERS", listUsers);
+		 System.out.println("showSellPage started: 00000000000000000000000000000000000");
+	     RequestDispatcher dispatcher = request.getRequestDispatcher("FollowPage.jsp");       
+	     dispatcher.forward(request, response);
+      
+         System.out.println("showSellPage finished: 111111111111111111111111111111111111");
+	}
     
-    private void sellCheck(HttpServletRequest request, HttpServletResponse response) 
+	private void sellCheck(HttpServletRequest request, HttpServletResponse response) 
     		throws SQLException, IOException, ServletException{
         System.out.println("sellCheck started: 00000000000000000000000000000000000");
         
