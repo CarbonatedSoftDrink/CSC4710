@@ -39,7 +39,7 @@
 			<c:forEach var = "i" begin = "0" end = "${FOLLOWEES.size()-1}">
 				<tr>
 					<td>${FOLLOWEES[i]}</td>
-					<td><a name="unfollow" href="unfollowUser?id=${FOLLOWEES[i]}">Unfollow</a></td>
+					<td><a name="unfollow" href="unfollowUser?username=${FOLLOWEES[i]}">Unfollow</a></td>
 				</tr>
 			</c:forEach>
 		</table>

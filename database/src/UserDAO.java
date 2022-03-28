@@ -18,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 //import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 /**
  * Servlet implementation class Connect
@@ -196,6 +197,7 @@ public class UserDAO {
                 throw new SQLException(e);
             }
             connect = (Connection) DriverManager
+                    .getConnection("jdbc:mysql://127.0.0.1:6000/twitterbase?"
                             + "useSSL=false&user=john&password=pass1234");
             //.getConnection(dbAddress + dbName, userName, password); this line gave me an error
             System.out.println(connect);
@@ -501,8 +503,6 @@ public class UserDAO {
         return rowUpdated;
     }
     
-    
-    
     public List getFollowees(User loggedIn) throws SQLException {
     	List<String> followeeList = new ArrayList(); 
         String sql = "SELECT * FROM follow WHERE followerid LIKE ?";
@@ -629,9 +629,18 @@ public class UserDAO {
         followerResult.close();
         statement.close();
 	}
+    
+    public void removeFollowing(String followerid, String followeeid) throws SQLException {
+    	String sql = "DELETE FROM follow WHERE followerid = ? AND followeeid = ?";
+        connect_func();
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, followerid);
+        preparedStatement.setString(2, followeeid);
+        preparedStatement.executeUpdate();
+    }
 
     public void BuyPPS(User loggedIn, float PPSbuyAmount) throws SQLException {
-        float dollarAmount = PPSbuyAmount / 100;
+    	float dollarAmount = PPSbuyAmount / 100;
         float id = loggedIn.getId();
         String sql;
         connect_func();
@@ -651,6 +660,20 @@ public class UserDAO {
 
         sql = "update Users set bankbalance=bankbalance-" + dollarAmount + " where id=" + loggedIn.getId() + ";";
         preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        java.util.Date date = new Date();
+        Object param = new java.sql.Timestamp(date.getTime());
+        
+        sql = "INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES (?,?,?,?,?,?,?)";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, "root");
+        preparedStatement.setString(2, loggedIn.getUsername());
+        preparedStatement.setDouble(3, PPSbuyAmount);
+        preparedStatement.setDouble(4, 0);
+        preparedStatement.setObject(5, param);
+        preparedStatement.setString(6, "buy");
+        preparedStatement.setDouble(7, 0.01);
         preparedStatement.executeUpdate();
         //return true;
     }
@@ -676,6 +699,20 @@ public class UserDAO {
 
         sql = "update Users set bankbalance=bankbalance+" + dollarAmount + " where id=" + loggedIn.getId() + ";";
         preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+
+        java.util.Date date = new Date();
+        Object param = new java.sql.Timestamp(date.getTime());
+        
+        sql = "INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES (?,?,?,?,?,?,?)";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, loggedIn.getUsername());
+        preparedStatement.setString(2, "root");
+        preparedStatement.setDouble(3, PPSsellAmount);
+        preparedStatement.setDouble(4, 0);
+        preparedStatement.setObject(5, param);
+        preparedStatement.setString(6, "sell");
+        preparedStatement.setDouble(7, 0.01);
         preparedStatement.executeUpdate();
         //return true;
     }

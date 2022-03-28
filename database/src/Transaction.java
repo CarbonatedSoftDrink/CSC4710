@@ -1,24 +1,32 @@
+import java.sql.Timestamp;
+
 public class Transaction {
     protected int id;
-    protected int SenderAddress;
-    protected int ReceiverAddress;
-    protected double PPAmount;
-    protected double DollarAmount;
+    protected String fromuser;
+    protected String touser;
+    protected double ppsamt;
+    protected double dollaramt;
+    protected Timestamp when;
+    protected String transtype;
+    protected Double price;
 
     public Transaction(int id) {
         this.id = id;
     }
 
-    public Transaction(int id, int SenderAddress, int ReceiverAddress, double PPAmount, double DollarAmount) {
-        this(SenderAddress, ReceiverAddress, PPAmount, DollarAmount);
+    public Transaction(int id, String fromuser, String touser, double ppsamt, double dollaramt, Timestamp when, String transtype, Double price) {
+        this(fromuser, touser, ppsamt, dollaramt, when, transtype, dollaramt);
         this.id = id;
     }
 
-    public Transaction(int SenderAddress, int ReceiverAddress, double PPAmount, double DollarAmount) {
-        this.SenderAddress = SenderAddress;
-        this.ReceiverAddress = ReceiverAddress;
-        this.PPAmount = PPAmount;
-        this.DollarAmount = DollarAmount;
+    public Transaction(String fromuser, String touser, double ppsamt, double dollaramt, Timestamp when, String transtype, Double price) {
+        this.fromuser = fromuser;
+        this.touser = touser;
+        this.ppsamt = ppsamt;
+        this.dollaramt = dollaramt;
+        this.when = when;
+        this.transtype = transtype;
+        this.price = price;
     }
 
     public int getId() {
@@ -29,35 +37,59 @@ public class Transaction {
         this.id = id;
     }
 
-    public int getSenderAddress() {
-        return SenderAddress;
+    public String getFromuser() {
+        return fromuser;
     }
 
-    public void setSenderAddress(int senderAddress) {
-        SenderAddress = senderAddress;
+    public void setFromuser(String fromuser) {
+    	this.fromuser = fromuser;
     }
 
-    public int getReceiverAddress() {
-        return ReceiverAddress;
+    public String getTouser() {
+        return touser;
     }
 
-    public void setReceiverAddress(int receiverAddress) {
-        ReceiverAddress = receiverAddress;
+    public void setTouser(String touser) {
+    	this.touser = touser;
     }
 
-    public double getPPAmount() {
-        return PPAmount;
+    public double getPpsamt() {
+        return ppsamt;
     }
 
-    public void setPPAmount(double PPAmount) {
-        this.PPAmount = PPAmount;
+    public void setPpsamt(double ppsamt) {
+        this.ppsamt = ppsamt;
     }
 
-    public double getDollarAmount() {
-        return DollarAmount;
+    public double getDollaramt() {
+        return dollaramt;
     }
 
-    public void setDollarAmount(double dollarAmount) {
-        DollarAmount = dollarAmount;
+    public void setDollaramt(double dollaramt) {
+    	this.dollaramt = dollaramt;
+    }
+    
+    public Timestamp getWhen() {
+    	return when;
+    }
+    
+    public void setWhen(Timestamp when) {
+    	this.when = when;
+    }
+    
+    public String getTranstype() {
+    	return transtype;
+    }
+    
+    public void setTranstype(String transtype) {
+    	this.transtype = transtype;
+    }
+    
+    public Double getPrice() {
+    	return price;
+    }
+    
+    public void setPrice(Double price) {
+    	this.price = price;
     }
 }

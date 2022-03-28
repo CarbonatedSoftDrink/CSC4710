@@ -27,6 +27,7 @@ public class ControlServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private PeopleDAO peopleDAO;
     private UserDAO userDAO;
+    private TransactionDAO transactionDAO;
     public User LoggedIn;
     public String info = "";
     public List followingList;
@@ -36,6 +37,7 @@ public class ControlServlet extends HttpServlet {
     public void init() {
         peopleDAO = new PeopleDAO(); 
     	userDAO = new UserDAO();
+    	transactionDAO = new TransactionDAO();
     }
  
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -53,6 +55,10 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/unfollowUser":
+            	System.out.println("The action is: unfollowUser");
+            	unfollowUser(request, response);
+            	break;
             case "/followUser":
             	System.out.println("The action is: followUser");
             	followUser(request, response);
@@ -155,6 +161,12 @@ public class ControlServlet extends HttpServlet {
 	private void followUser(HttpServletRequest request, HttpServletResponse response) 
 			throws SQLException, IOException, ServletException {
 		userDAO.updateFollowers(Integer.parseInt(request.getParameter("id")), LoggedIn.getId());
+		response.sendRedirect("followPage");
+	}
+	
+	private void unfollowUser(HttpServletRequest request, HttpServletResponse response) 
+			throws SQLException, IOException, ServletException {
+		userDAO.removeFollowing(LoggedIn.getUsername(), request.getParameter("username"));
 		response.sendRedirect("followPage");
 	}
 
@@ -385,10 +397,12 @@ public class ControlServlet extends HttpServlet {
         System.out.println("showActivitiesPage started: 00000000000000000000000000000000000");
         
         info = "";
+        List<Transaction> transactionList = transactionDAO.getTransactions(LoggedIn);
         request.setAttribute("username", LoggedIn.getUsername());
         request.setAttribute("PPA", LoggedIn.getPpsbalance());
         request.setAttribute("USA", LoggedIn.getBankbalance());
         request.setAttribute("PPAD", LoggedIn.getPpaddress());
+		request.setAttribute("transactions", transactionList);
         RequestDispatcher dispatcher = request.getRequestDispatcher("ActivitiesPage.jsp");       
         dispatcher.forward(request, response);
      
