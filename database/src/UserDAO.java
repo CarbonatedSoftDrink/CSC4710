@@ -716,4 +716,30 @@ public class UserDAO {
         preparedStatement.executeUpdate();
         //return true;
     }
+
+	public void tipPPS(User loggedIn, String toUser, Double ppsAmt) throws SQLException {
+		String sql;
+        connect_func();
+        sql = "UPDATE users SET ppsbalance=ppsbalance-" + ppsAmt + " WHERE username=" + "\"" + loggedIn.getUsername() + "\"";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+		
+        sql = "UPDATE users SET ppsbalance=ppsbalance+" + ppsAmt + " where username=" + "\"" + toUser + "\"";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        java.util.Date date = new Date();
+        Object param = new java.sql.Timestamp(date.getTime());
+        sql = "INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES (?,?,?,?,?,?,?)";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, loggedIn.getUsername());
+        preparedStatement.setString(2, toUser);
+        preparedStatement.setDouble(3, ppsAmt);
+        preparedStatement.setDouble(4, 0);
+        preparedStatement.setObject(5, param);
+        preparedStatement.setString(6, "tip");
+        preparedStatement.setDouble(7, 0.01);
+        preparedStatement.executeUpdate();
+        
+	}
 }

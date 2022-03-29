@@ -67,6 +67,10 @@ public class ControlServlet extends HttpServlet {
             	System.out.println("The action is: showFollowPage");
             	showFollowPage(request, response);
             	break;
+            case "/tipPPS":
+            	System.out.println("The action is: sellCheck");
+            	tipPPS(request, response);
+            	break;
             case "/sellPPS":
             	System.out.println("The action is: sellCheck");
             	sellCheck(request, response);
@@ -157,6 +161,42 @@ public class ControlServlet extends HttpServlet {
         }
         System.out.println("doGet finished: 111111111111111111111111111111111111");
     }
+
+	private void tipPPS(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+		String toUser;
+		Double ppsAmt;
+		
+		try {
+            ppsAmt = Double.parseDouble(request.getParameter("tipAmt"));
+            toUser = request.getParameter("tipUser");
+        }
+        catch (NumberFormatException e){
+        	ppsAmt = 0.0;
+        	toUser = "";
+        }
+		
+        if (ppsAmt > LoggedIn.getPpsbalance()) {
+        	info = "You are trying to tip more PPS than you own. Please try a lower value.";
+        	System.out.println("Ask the browser to call the followPage action next automatically");
+            response.sendRedirect("followPage");  //
+         
+            System.out.println("tipPPS1 finished: 11111111111111111111111111");
+        }
+        else if(toUser == "") {
+        	info = "Please enter a valid user.";
+        	System.out.println("Ask the browser to call the followPage action next automatically");
+            response.sendRedirect("followPage");  //
+        }
+        else {
+        	userDAO.tipPPS(LoggedIn, toUser, ppsAmt);
+        	info = "Successfully tipped " + ppsAmt + " PPS to " + toUser + "!";
+        	LoggedIn = userDAO.getUser(LoggedIn.getId()); // refreshes user data
+        	System.out.println("Ask the browser to call the followPage action next automatically");
+            response.sendRedirect("followPage");  //
+            System.out.println("tipPPS2 finished: 11111111111111111111111111");
+        }
+		
+	}
 
 	private void followUser(HttpServletRequest request, HttpServletResponse response) 
 			throws SQLException, IOException, ServletException {
