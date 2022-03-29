@@ -124,6 +124,7 @@ public class UserDAO {
             + "password VARCHAR(50) NOT NULL,"
             + "firstname VARCHAR(50),"
             + "lastname VARCHAR(50),"
+            + "age INTEGER,"
             + "birthday VARCHAR(50),"
             + "streetnumber INTEGER,"
             + "street VARCHAR(50),"
@@ -217,6 +218,7 @@ public class UserDAO {
             String password = resultSet.getString("password");
             String firstname = resultSet.getString("firstname");
             String lastname = resultSet.getString("lastname");
+            Integer age = resultSet.getInt("age");
             String birthday = resultSet.getString("birthday");
             Integer streetnumber = resultSet.getInt("streetnumber");
             String street = resultSet.getString("street");
@@ -315,6 +317,7 @@ public class UserDAO {
             String password = resultSet.getString("password");
             String firstname = resultSet.getString("firstname");
             String lastname = resultSet.getString("lastname");
+            int age = resultSet.getInt("age");
             String birthday = resultSet.getString("birthday");
             Integer streetnumber = resultSet.getInt("streetnumber");
             String street = resultSet.getString("street");
@@ -415,6 +418,7 @@ public class UserDAO {
                 String password = resultSet.getString("password");
                 String firstname = resultSet.getString("firstname");
                 String lastname = resultSet.getString("lastname");
+                Integer age = resultSet.getInt("age");
                 String birthday = resultSet.getString("birthday");
                 Integer streetnumber = resultSet.getInt("streetnumber");
                 String street = resultSet.getString("street");
@@ -441,15 +445,16 @@ public class UserDAO {
             }
         }
 
-        String sql = "insert into Users(username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppbalance, bankbalance, ppaddress) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "insert into Users(username, password, firstname, lastname, age, birthday, streetnumber, street, city, state, zipcode, ppbalance, bankbalance, ppaddress) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
         preparedStatement.setString(1, user.getUsername());
         preparedStatement.setString(2, user.getPassword());
         preparedStatement.setString(3, user.getFirstname());
         preparedStatement.setString(4, user.getLastname());
-        preparedStatement.setString(5, user.getBirthday());
-        preparedStatement.setInt(6, user.getStreetnumber());
-        preparedStatement.setString(7, user.getStreet());
+        preparedStatement.setInt(5, user.getAge());
+        preparedStatement.setString(6, user.getBirthday());
+        preparedStatement.setInt(7, user.getStreetnumber());
+        preparedStatement.setString(8, user.getStreet());
         preparedStatement.setString(9, user.getCity());
         preparedStatement.setString(10, user.getState());
         preparedStatement.setInt(11, user.getZipcode());

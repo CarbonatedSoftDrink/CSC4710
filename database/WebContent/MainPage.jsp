@@ -1,9 +1,10 @@
+<%@ page import="java.util.List" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html>
+  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta charset="ISO-8859-1">
 <title>Twitter Home Page</title>
 </head>
 <body>
@@ -19,27 +20,26 @@
 
 <div align="center">
         <table border="1" cellpadding="5">
-            <caption><h2>List of Tweets // Under Construction!</h2></caption>
+            <caption><h2></h2></caption>
             <tr>
                 <th>ID</th>
-                <th>Tweeter</th>
                 <th>Content</th>
+                <th>Tweeter</th>
             </tr>
-            <!-- 
-            <c:forEach var="people" items="${listPeople}">
+            <c:forEach var="tweet" items="${listTweets}">
                 <tr>
-                    <td><c:out value="${people.id}" /></td>
-                    <td><c:out value="${people.name}" /></td>
-                    <td><c:out value="${people.address}" /></td>
-                    <td><c:out value="${people.status}" /></td>
+                    <td><c:out value="${tweet.id}" /></td>
+                    <td><c:out value="${tweet.content}" /></td>
+                    <td><c:out value="${tweet.author}" /></td>
+                    <!--
                     <td>
                         <a href="edit?id=<c:out value='${people.id}' />">Edit</a>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <a href="delete?id=<c:out value='${people.id}' />">Delete</a>                     
                     </td>
+                    -->
                 </tr>
             </c:forEach>
-            -->
         </table>
 </div>   
 
