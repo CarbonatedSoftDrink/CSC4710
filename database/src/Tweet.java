@@ -1,8 +1,9 @@
 public class Tweet {
     protected int id;
-    protected String TweeterID;
     protected String Content;
-    protected int ParentTweetID;
+    protected String Author;
+    //protected int TweeterID;
+    //protected int ParentTweetID;
 
     public Tweet() {
     }
@@ -10,16 +11,15 @@ public class Tweet {
     public Tweet(int id) {
         this.id = id;
     }
-
-    public Tweet (int id, String TweeterID, String Content, int ParentTweetID){
-        this(TweeterID, Content, ParentTweetID);
+    
+    public Tweet (int id, String Content, String Author){
+        this(Content, Author);
         this.id = id;
     }
-
-    public Tweet (String TweeterID, String Content, int ParentTweetID){
-        this.TweeterID = TweeterID;
+    
+    public Tweet (String Content, String Author){
         this.Content = Content;
-        this.ParentTweetID = ParentTweetID;
+        this.Author = Author;
     }
 
     public int getId() {
@@ -30,27 +30,19 @@ public class Tweet {
         this.id = id;
     }
 
-    public String getTweeterID() {
-        return TweeterID;
-    }
-
-    public void setTweeterID(String tweeterID) {
-        TweeterID = tweeterID;
-    }
-
     public String getContent() {
         return Content;
     }
 
     public void setContent(String content) {
-        Content = content;
+        this.Content = content;
     }
 
-    public int getParentTweetID() {
-        return ParentTweetID;
+    public String getAuthor() {
+    	return Author;
     }
-
-    public void setParentTweetID(int parentTweetID) {
-        ParentTweetID = parentTweetID;
+    
+    public void setAuthor(String author) {
+    	this.Author = author;
     }
 }

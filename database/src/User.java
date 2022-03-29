@@ -8,6 +8,7 @@ public class User implements Serializable {
     private String password;
     private String firstname;
     private String lastname;
+    private int age;
     private String birthday;
     private Integer streetnumber;
     private String street;
@@ -17,6 +18,22 @@ public class User implements Serializable {
     private Integer ppsbalance;
     private Double bankbalance;
     private Integer ppaddress;
+    
+    public User(int id, String UserID, String Password, String FirstName, String LastName, int Age, int PPAddress, int PPWallet, double DollarWallet) {
+    	this(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
+    	this.id = id;
+    }
+    
+    public User(String UserID, String Password, String FirstName, String LastName, int Age, int PPAddress, int PPWallet, double DollarWallet) {
+    	this.username = UserID;
+    	this.password = Password;
+    	this.firstname = FirstName;
+    	this.lastname = LastName;
+    	this.age = Age;
+    	this.ppaddress = PPAddress;
+    	this.ppsbalance = PPWallet;
+    	this.bankbalance = DollarWallet;
+    }
     
     public User(int id, String username, String password, String firstname, String lastname, String birthday, int streetnumber, String street, String city, String state, int zipcode, int ppsbalance, double bankbalance, int ppsaddress) {
     	this.id = id;
@@ -41,6 +58,8 @@ public class User implements Serializable {
 		this.firstname = firstname;
 		this.birthday = birthday;
 		this.ppaddress = ppaddress;
+		this.ppsbalance = 0;
+		this.bankbalance = 1000.0;
 	}
 
 	public Integer getId() {
@@ -139,11 +158,11 @@ public class User implements Serializable {
 		this.ppsbalance = ppsbalance;
 	}
 
-	public Double getBankbalance() {
+	public double getBankbalance() {
 		return bankbalance;
 	}
 
-	public void setBankbalance(Double bankbalance) {
+	public void setBankbalance(double bankbalance) {
 		this.bankbalance = bankbalance;
 	}
 
@@ -153,6 +172,14 @@ public class User implements Serializable {
 
 	public void setPpaddress(Integer ppaddress) {
 		this.ppaddress = ppaddress;
+	}
+	
+	public int getAge() {
+		return ppaddress;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
 	}
 	
 }

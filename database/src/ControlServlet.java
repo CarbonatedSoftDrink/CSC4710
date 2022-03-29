@@ -27,17 +27,21 @@ public class ControlServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private PeopleDAO peopleDAO;
     private UserDAO userDAO;
+    private TweetDAO tweetDAO;
     private TransactionDAO transactionDAO;
     public User LoggedIn;
     public String info = "";
     public List followingList;
     private int globalID = 1;
     private int ppNumber = 1012;
+    boolean firstTime = true;
+    private int viewedTweetID = -1;
  
     public void init() {
         peopleDAO = new PeopleDAO(); 
     	userDAO = new UserDAO();
     	transactionDAO = new TransactionDAO();
+        tweetDAO = new TweetDAO();
     }
  
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -55,6 +59,26 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/addLike":
+                System.out.println("The action is: addLike");
+                addLike(request, response);
+                break;
+            case "/viewTweet2":
+                System.out.println("The action is: showTweet2");
+                showTweet2(request, response);
+                break;
+            case "/addComment":
+                System.out.println("The action is: postComment");
+                postComment(request, response);
+                break;
+            case "/postTweet":
+                System.out.println("The action is: postTweet");
+                postTweet(request, response);
+                break;
+            case "/viewTweet":
+                System.out.println("The action is: showTweet");
+                showTweet(request, response);
+                break;
             case "/unfollowUser":
             	System.out.println("The action is: unfollowUser");
             	unfollowUser(request, response);
@@ -197,6 +221,132 @@ public class ControlServlet extends HttpServlet {
         }
 		
 	}
+    private void addLike(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, ServletException, IOException {
+        System.out.println("addLike started: 000000000000000000000000000");
+
+        boolean status = tweetDAO.addLike(viewedTweetID, LoggedIn);
+        if (status == false) {
+            System.out.println("User has already liked this tweet.");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/viewTweet2");
+            dispatcher.forward(request, response);
+            System.out.println("addLike finished: 1111111111111111111111111111");
+        }
+        else {
+            System.out.println("User has liked this tweet!");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/viewTweet2");
+            dispatcher.forward(request, response);
+            System.out.println("addLike finished: 1111111111111111111111111111");
+        }
+    }
+
+    private void showTweet2(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, ServletException, IOException {
+        System.out.println("showTweet2 started: 000000000000000000000000000");
+
+        //int id = Integer.parseInt(request.getParameter("id"));
+        int id;
+        //viewedTweetID = id;
+        id = viewedTweetID;
+        Tweet existingTweet = tweetDAO.getTweet(id);
+        int likes = tweetDAO.getLikes(viewedTweetID);
+        request.setAttribute("likes", likes);
+        
+        if (tweetDAO.userLikeCheck(viewedTweetID, LoggedIn) == true) {
+        	info = "You liked this tweet.";
+        }
+        else {
+        	info = "";
+        }
+        request.setAttribute("info", info);
+
+        List<Tweet> listComments = tweetDAO.listAllComments(id);
+        request.setAttribute("listComments", listComments);
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("ViewTweet.jsp");
+        request.setAttribute("tweet", existingTweet);
+        dispatcher.forward(request, response); // The forward() method works at server side, and It sends the same request and response objects to another servlet.
+        System.out.println("Now you see the ViewTweet page in your browser.");
+
+        System.out.println("showTweet2 finished: 1111111111111111111111111111");
+    }
+
+    private void postComment(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException{
+        System.out.println("postComment started: 00000000000000000000000000000000000");
+        int id = viewedTweetID;
+        String tweetContent = request.getParameter("makeComment");
+        String tweetAuthor = LoggedIn.getUsername();
+        System.out.println(tweetAuthor);
+        if (tweetContent.equals("")) {
+            info = "Empty tweet contents, tweet not created.";
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/viewTweet2");
+            dispatcher.forward(request, response);
+        }
+        else {
+            Tweet newTweet = new Tweet(tweetContent, tweetAuthor);
+            tweetDAO.insertComment(newTweet, id);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/viewTweet2");
+            dispatcher.forward(request, response);
+
+            System.out.println("postComment finished: 1111111111111111111111111111");
+
+        }
+
+        System.out.println("postComment2 finished: 1111111111111111111111111111");
+    }
+
+    private void postTweet(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException{
+        System.out.println("postTweet started: 00000000000000000000000000000000000");
+        String tweetContent = request.getParameter("makeTweet");
+        String tweetAuthor = LoggedIn.getUsername();
+        if (tweetContent.equals("")) {
+            info = "Empty tweet contents, tweet not created.";
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/homepage");
+            dispatcher.forward(request, response);
+        }
+        else {
+            Tweet newTweet = new Tweet(tweetContent, tweetAuthor);
+            tweetDAO.insert(newTweet);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/homepage");
+            dispatcher.forward(request, response);
+
+            System.out.println("postTweet finished: 1111111111111111111111111111");
+
+        }
+
+        System.out.println("postTweet2 finished: 1111111111111111111111111111");
+    }
+
+    private void showTweet(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, ServletException, IOException {
+        System.out.println("showTweet started: 000000000000000000000000000");
+
+        int id = Integer.parseInt(request.getParameter("id"));
+        viewedTweetID = id;
+        Tweet existingTweet = tweetDAO.getTweet(id);
+        int likes = tweetDAO.getLikes(viewedTweetID);
+        request.setAttribute("likes", likes);
+        
+        if (tweetDAO.userLikeCheck(viewedTweetID, LoggedIn) == true) {
+        	info = "You liked this tweet.";
+        }
+        else {
+        	info = "";
+        }
+        request.setAttribute("info", info);
+
+        List<Tweet> listComments = tweetDAO.listAllComments(id);
+        request.setAttribute("listComments", listComments);
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("ViewTweet.jsp");
+        request.setAttribute("tweet", existingTweet);
+        dispatcher.forward(request, response); // The forward() method works at server side, and It sends the same request and response objects to another servlet.
+        System.out.println("Now you see the ViewTweet page in your browser.");
+
+        System.out.println("showTweet finished: 1111111111111111111111111111");
+    }
 
 	private void followUser(HttpServletRequest request, HttpServletResponse response) 
 			throws SQLException, IOException, ServletException {
@@ -493,7 +643,11 @@ public class ControlServlet extends HttpServlet {
     		throws SQLException, IOException, ServletException{
         System.out.println("showHomePage started: 00000000000000000000000000000000000");
         
+        List<Tweet> listTweets = tweetDAO.listAllTweets();
+        request.setAttribute("listTweets", listTweets); 
+        
         info = "";
+        request.setAttribute("info", info);
         request.setAttribute("PPA", LoggedIn.getPpsbalance());
         request.setAttribute("USA", LoggedIn.getBankbalance());
         request.setAttribute("username", LoggedIn.getUsername());

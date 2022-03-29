@@ -26,7 +26,7 @@ import java.util.List;
 @WebServlet("/UserDAO")
 public class UserDAO {
     private String jdbcDriver = "com.mysql.jdbc.Driver";
-    private String dbAddress = "jdbc:mysql://localhost:6000/";
+    private String dbAddress = "jdbc:mysql://localhost:3306/";
     private String dbName = "twitterbase";
     private String userName = "john";
     private String password = "pass1234";
@@ -124,6 +124,7 @@ public class UserDAO {
             + "password VARCHAR(50) NOT NULL,"
             + "firstname VARCHAR(50),"
             + "lastname VARCHAR(50),"
+            + "age INTEGER,"
             + "birthday VARCHAR(50),"
             + "streetnumber INTEGER,"
             + "street VARCHAR(50),"
@@ -197,7 +198,7 @@ public class UserDAO {
                 throw new SQLException(e);
             }
             connect = (Connection) DriverManager
-                    .getConnection("jdbc:mysql://127.0.0.1:6000/twitterbase?"
+                    .getConnection("jdbc:mysql://127.0.0.1:3306/twitterbase?"
                             + "useSSL=false&user=john&password=pass1234");
             //.getConnection(dbAddress + dbName, userName, password); this line gave me an error
             System.out.println(connect);
@@ -217,6 +218,7 @@ public class UserDAO {
             String password = resultSet.getString("password");
             String firstname = resultSet.getString("firstname");
             String lastname = resultSet.getString("lastname");
+            Integer age = resultSet.getInt("age");
             String birthday = resultSet.getString("birthday");
             Integer streetnumber = resultSet.getInt("streetnumber");
             String street = resultSet.getString("street");
@@ -315,6 +317,7 @@ public class UserDAO {
             String password = resultSet.getString("password");
             String firstname = resultSet.getString("firstname");
             String lastname = resultSet.getString("lastname");
+            int age = resultSet.getInt("age");
             String birthday = resultSet.getString("birthday");
             Integer streetnumber = resultSet.getInt("streetnumber");
             String street = resultSet.getString("street");
@@ -415,6 +418,7 @@ public class UserDAO {
                 String password = resultSet.getString("password");
                 String firstname = resultSet.getString("firstname");
                 String lastname = resultSet.getString("lastname");
+                Integer age = resultSet.getInt("age");
                 String birthday = resultSet.getString("birthday");
                 Integer streetnumber = resultSet.getInt("streetnumber");
                 String street = resultSet.getString("street");
@@ -441,21 +445,36 @@ public class UserDAO {
             }
         }
 
-        String sql = "insert into Users(username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppbalance, bankbalance, ppaddress) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        /*
+        String sql = "insert into Users(username, password, firstname, lastname, age, birthday, streetnumber, street, city, state, zipcode, ppbalance, bankbalance, ppaddress) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
         preparedStatement.setString(1, user.getUsername());
         preparedStatement.setString(2, user.getPassword());
         preparedStatement.setString(3, user.getFirstname());
         preparedStatement.setString(4, user.getLastname());
-        preparedStatement.setString(5, user.getBirthday());
-        preparedStatement.setInt(6, user.getStreetnumber());
-        preparedStatement.setString(7, user.getStreet());
+        preparedStatement.setInt(5, user.getAge());
+        preparedStatement.setString(6, user.getBirthday());
+        preparedStatement.setInt(7, user.getStreetnumber());
+        preparedStatement.setString(8, user.getStreet());
         preparedStatement.setString(9, user.getCity());
         preparedStatement.setString(10, user.getState());
         preparedStatement.setInt(11, user.getZipcode());
         preparedStatement.setInt(12, user.getPpsbalance());
         preparedStatement.setDouble(13, user.getBankbalance());
         preparedStatement.setInt(14, user.getPpaddress());
+//		preparedStatement.executeUpdate();
+        */
+        
+        String sql = "insert into Users(username, password, firstname, lastname, age, PPAddress, ppsbalance, bankbalance) values (?, ?, ?, ?, ?, ?, ?, ?)";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, user.getUsername());
+        preparedStatement.setString(2, user.getPassword());
+        preparedStatement.setString(3, user.getFirstname());
+        preparedStatement.setString(4, user.getLastname());
+        preparedStatement.setInt(5, user.getAge());
+        preparedStatement.setInt(6, user.getPpaddress());
+        preparedStatement.setInt(7, user.getPpsbalance());
+        preparedStatement.setDouble(8, user.getBankbalance());
 //		preparedStatement.executeUpdate();
 
         boolean rowInserted = preparedStatement.executeUpdate() > 0;
@@ -662,7 +681,7 @@ public class UserDAO {
         preparedStatement = connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
         
-        java.util.Date date = new Date();
+        Date date = new Date();
         Object param = new java.sql.Timestamp(date.getTime());
         
         sql = "INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES (?,?,?,?,?,?,?)";
@@ -701,7 +720,7 @@ public class UserDAO {
         preparedStatement = connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
 
-        java.util.Date date = new Date();
+        Date date = new Date();
         Object param = new java.sql.Timestamp(date.getTime());
         
         sql = "INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES (?,?,?,?,?,?,?)";
