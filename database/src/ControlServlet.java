@@ -186,6 +186,7 @@ public class ControlServlet extends HttpServlet {
         System.out.println("doGet finished: 111111111111111111111111111111111111");
     }
 
+<<<<<<< HEAD
 	private void tipPPS(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
 		String toUser;
 		Double ppsAmt;
@@ -221,6 +222,7 @@ public class ControlServlet extends HttpServlet {
         }
 		
 	}
+=======
     private void addLike(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, ServletException, IOException {
         System.out.println("addLike started: 000000000000000000000000000");
@@ -347,6 +349,7 @@ public class ControlServlet extends HttpServlet {
 
         System.out.println("showTweet finished: 1111111111111111111111111111");
     }
+>>>>>>> a7ce1917403e0d410fa12db6d0d993dffa7340a0
 
 	private void followUser(HttpServletRequest request, HttpServletResponse response) 
 			throws SQLException, IOException, ServletException {
