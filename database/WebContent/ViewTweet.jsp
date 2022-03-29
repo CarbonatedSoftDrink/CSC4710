@@ -19,6 +19,10 @@
 </div>
 
 <div align="center">
+	<h3>${info}</h3>
+</div>
+
+<div align="center">
         <table border="1" cellpadding="5">
             <!--<caption><h2>Tweet // Under Construction!</h2></caption>-->
             <tr>
@@ -57,9 +61,7 @@
 	</form>
 </div>
 
-<div align="center">
-	<h3>${info}</h3>
-</div>
+
 
 </body>
 </html>

@@ -212,6 +212,14 @@ public class ControlServlet extends HttpServlet {
         Tweet existingTweet = tweetDAO.getTweet(id);
         int likes = tweetDAO.getLikes(viewedTweetID);
         request.setAttribute("likes", likes);
+        
+        if (tweetDAO.userLikeCheck(viewedTweetID, LoggedIn) == true) {
+        	info = "You liked this tweet.";
+        }
+        else {
+        	info = "";
+        }
+        request.setAttribute("info", info);
 
         List<Tweet> listComments = tweetDAO.listAllComments(id);
         request.setAttribute("listComments", listComments);
@@ -281,6 +289,14 @@ public class ControlServlet extends HttpServlet {
         Tweet existingTweet = tweetDAO.getTweet(id);
         int likes = tweetDAO.getLikes(viewedTweetID);
         request.setAttribute("likes", likes);
+        
+        if (tweetDAO.userLikeCheck(viewedTweetID, LoggedIn) == true) {
+        	info = "You liked this tweet.";
+        }
+        else {
+        	info = "";
+        }
+        request.setAttribute("info", info);
 
         List<Tweet> listComments = tweetDAO.listAllComments(id);
         request.setAttribute("listComments", listComments);
@@ -588,7 +604,11 @@ public class ControlServlet extends HttpServlet {
     		throws SQLException, IOException, ServletException{
         System.out.println("showHomePage started: 00000000000000000000000000000000000");
         
+        List<Tweet> listTweets = tweetDAO.listAllTweets();
+        request.setAttribute("listTweets", listTweets); 
+        
         info = "";
+        request.setAttribute("info", info);
         request.setAttribute("PPA", LoggedIn.getPpsbalance());
         request.setAttribute("USA", LoggedIn.getBankbalance());
         request.setAttribute("username", LoggedIn.getUsername());

@@ -167,6 +167,28 @@ public class TweetDAO {
             return rowInserted;
         }
 	}
+	
+	public boolean userLikeCheck(int tweetID, User user) throws SQLException{
+		int answer = 0;
+		String username = user.getUsername();
+		String sql = "SELECT * FROM likes WHERE tweetid LIKE " + tweetID + " AND userid LIKE '" + username + "'";      
+        connect_func();      
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+        
+        while (resultSet.next()) {
+        	answer += 1;
+        }
+        
+        resultSet.close();  
+        
+        if (answer >= 1) {
+        	return true;
+        }
+        else {
+        	return false;
+        }
+	}
     
     protected void disconnect() throws SQLException {
         if (connect != null && !connect.isClosed()) {
