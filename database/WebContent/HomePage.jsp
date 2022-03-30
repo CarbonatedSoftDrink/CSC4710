@@ -27,6 +27,8 @@
 	<a href="sellPage">Sell PPS</a>
 	&nbsp;&nbsp;&nbsp;
 	<a href="activities">Activities</a>
+	&nbsp;&nbsp;&nbsp;
+	<a href="followPage">Follow/Unfollow</a>
 	</h3>
 </div>
 
