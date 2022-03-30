@@ -13,7 +13,7 @@
 </div>
 
 <div align="center">
-	<h3>Your PP Wallet amount is: ${PPA}</h3>
+	<h3>Your PPS Wallet amount is: ${PPA}</h3>
 	<h3>Your U.S. Dollar Wallet amount is: ${USA}</h3>
 	<h3>The conversion is $1 to 100 PPS</h3>
 </div>

@@ -544,10 +544,16 @@ public class ControlServlet extends HttpServlet {
         String confirm = request.getParameter("confirmPW");
         String firstname = request.getParameter("fname");
         String lastname = request.getParameter("lname");
-        String birthday = request.getParameter("age");
+        int age;
+        try {
+            age = Integer.parseInt(request.getParameter("age"));
+        }
+        catch (NumberFormatException e){
+        	age = 0;
+        }
         int ppaddress = ppNumber;
         //ppNumber += 1;
-        System.out.println("userid:" + userid + ", password:" + password + ", firstname:" + firstname + ", lastname:" + lastname + ", age:" + birthday);
+        System.out.println("userid:" + userid + ", password:" + password + ", firstname:" + firstname + ", lastname:" + lastname + ", age:" + age);
      
         if (password.equals(confirm) == false) {
         	info = "Passwords do not match. Please try again.";
@@ -556,7 +562,7 @@ public class ControlServlet extends HttpServlet {
          
             System.out.println("insertUser finished: 11111111111111111111111111"); 
         }
-        else if(userid.equals("") || password.equals("") || confirm.equals("") || firstname.equals("") || lastname.equals("") || birthday.equals("")) {
+        else if(userid.equals("") || password.equals("") || confirm.equals("") || firstname.equals("") || lastname.equals("") || age == 0) {
         	info = "One or more form fields were missing. Please try again.";
         	System.out.println("One or more form fields are missing. Ask the browser to call the signup action next automatically");
             response.sendRedirect("signup");  //
@@ -572,9 +578,9 @@ public class ControlServlet extends HttpServlet {
                 System.out.println("insertUser finished: 11111111111111111111111111"); 
         	}
         	else {
-        		User newUser = new User(userid, password, firstname, lastname, birthday, ppaddress);
+        		User newUser = new User(userid, password, firstname, lastname, age, ppaddress);
                 userDAO.insert(newUser);
-                LoggedIn = newUser;
+                LoggedIn = userDAO.getUserFromName(userid);
                 ppNumber += 1;
              
                 System.out.println("Ask the browser to call the homepage action next automatically");

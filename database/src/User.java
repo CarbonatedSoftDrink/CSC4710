@@ -19,6 +19,22 @@ public class User implements Serializable {
     private Double bankbalance;
     private Integer ppaddress;
     
+    public User(int id, String UserID, String Password, String FirstName, String LastName, int Age, int PPAddress) {
+        this(UserID, Password, FirstName, LastName, Age, PPAddress);
+        this.id = id;
+    }
+    
+    public User(String UserID, String Password, String FirstName, String LastName, int Age, int PPAddress) {
+        this.username = UserID;
+        this.password = Password;
+        this.firstname = FirstName;
+        this.lastname = LastName;
+        this.age = Age;
+        this.ppaddress = PPAddress;
+        this.ppsbalance = 0;
+        this.bankbalance = 1000.0;
+    }
+    
     public User(int id, String UserID, String Password, String FirstName, String LastName, int Age, int PPAddress, int PPWallet, double DollarWallet) {
     	this(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
     	this.id = id;
@@ -175,7 +191,7 @@ public class User implements Serializable {
 	}
 	
 	public int getAge() {
-		return ppaddress;
+		return age;
 	}
 
 	public void setAge(int age) {

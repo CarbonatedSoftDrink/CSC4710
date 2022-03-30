@@ -581,6 +581,41 @@ public class UserDAO {
 
         return userList;
     }
+    
+    public User getUserFromName(String usernameGiven) throws SQLException {
+        User user = null;
+        String sql = "SELECT * FROM Users WHERE username = ?";
+
+        connect_func();
+
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, usernameGiven);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+        	int id = resultSet.getInt("id");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
+
+            user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
+        }
+        resultSet.close();
+        statement.close();
+
+        return user;
+    }
 
     public User getUser(int id) throws SQLException {
         User user = null;
@@ -747,7 +782,7 @@ public class UserDAO {
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
         preparedStatement.executeUpdate();
         
-        java.util.Date date = new Date();
+        Date date = new Date();
         Object param = new java.sql.Timestamp(date.getTime());
         sql = "INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES (?,?,?,?,?,?,?)";
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
