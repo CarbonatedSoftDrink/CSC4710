@@ -1,5 +1,11 @@
 # Database Project
-All work in part 1 was done by Gregory Flores, gn8967.
+
+Part 2:
+Tweeting, Commenting, Buying and Selling PPS functionality created by Gregory Flores, gn8967.
+
+
+Part 1:
+All work in part 1 (on THIS repository) was done by Gregory Flores, gn8967.
 Instructions to download and install the project are available inside of the video.
 
 Instructions:
