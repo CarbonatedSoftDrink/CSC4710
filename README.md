@@ -2,7 +2,7 @@
 
 Part 2:
 Tweeting, Commenting, Buying and Selling PPS functionality created by Gregory Flores, gn8967.
-Activites, Follow/Unfollow and Tipping PPS functionality created by Golam Tahsin, gj4559
+Activities, Follow/Unfollow and Tipping PPS functionality created by Golam Tahsin, gj4559
 
 
 Part 1:
