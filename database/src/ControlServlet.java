@@ -201,6 +201,7 @@ public class ControlServlet extends HttpServlet {
 		
         if (ppsAmt > LoggedIn.getPpsbalance()) {
         	info = "You are trying to tip more PPS than you own. Please try a lower value.";
+        	System.out.println(info);
         	System.out.println("Ask the browser to call the followPage action next automatically");
             response.sendRedirect("followPage");  //
          
@@ -367,6 +368,7 @@ public class ControlServlet extends HttpServlet {
 		List<User> listUsers = userDAO.getAllUsers();
 		request.setAttribute("FOLLOWEES", followeeList);
 		request.setAttribute("USERS", listUsers);
+    	request.setAttribute("info", info);
 		 System.out.println("showSellPage started: 00000000000000000000000000000000000");
 	     RequestDispatcher dispatcher = request.getRequestDispatcher("FollowPage.jsp");       
 	     dispatcher.forward(request, response);
