@@ -6,45 +6,40 @@
 <html>
 <head>
 	<title>Twitter Home Page</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 <body>
-
-<div align="center">
-        <h1>Welcome to Twitter</h1>
-        <h1>You are now signed in as ${username}!</h1>
-        <h2><a href="mainpage">Sign Out</a></h2>
-</div>
-
-<div align="center">
-	<h3>Your PPWallet amount is: ${PPA}</h3>
-	<h3>Your U.S. Dollar Wallet amount is: ${USA}</h3>
-</div>
-
-<div align="center">
+<div class="sticky-top container-fluid border border-primary mt-0 mb-1 ml-0 mr-0 text-center pt-2 bg-primary w-100">
 	<h3>
-	<a href="buyPage">Buy PPS</a>
+	<a class="text-white" href="buyPage">Buy PPS</a>
 	&nbsp;&nbsp;&nbsp;
-	<a href="sellPage">Sell PPS</a>
+	<a class="text-white" href="sellPage">Sell PPS</a>
 	&nbsp;&nbsp;&nbsp;
-	<a href="activities">Activities</a>
+	<a class="text-white" href="activities">Activities</a>
 	&nbsp;&nbsp;&nbsp;
-	<a href="followPage">Follow/Unfollow</a>
+	<a class="text-white" href="followPage">Follow/Unfollow</a>
 	</h3>
 </div>
+<div class="container-fluid">
+        <h3>You are now signed in as ${username} <a class="float-right h4" href="mainpage">Sign Out</a></h3>
+</div>
+
+<div class="container-fluid">
+	<h5 class="text-left">PPS Balance: ${PPA}</h5>
+	<h5 class="text-left">USD Balance: ${USA}</h5>
+</div>
 
 <div align="center">
-	<form action="postTweet">
-		<label for="makeTweet">Make a new tweet here:</label>
-		<input type="text" id="makeTweet" name="makeTweet"><br><br>
-		<input type="submit" value="Post">
+	<form action="postTweet" class="row w-100">
+		<input style="width: 85%; margin-left: 1%;" class="form-group col-xs-6 mb-0 mt-3" type="text" id="makeTweet" name="makeTweet"><br><br>
+		<input class="form-group col-xs-6 mb-0 mt-3 w-5" type="submit" value="Tweet">
 	</form>
 </div>
 
 <h3>${info}</h3>
 
-<div align="center">
+<div class="container-fluid mb-3">
         <table border="1" cellpadding="5">
-            <caption><h2>List of Tweets</h2></caption>
             <tr>
                 <th>ID</th>
                 <th>Content</th>

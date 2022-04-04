@@ -13,7 +13,7 @@ import javax.servlet.annotation.WebServlet;
 @WebServlet("/TransactionDAO")
 public class TransactionDAO {
 	private String jdbcDriver = "com.mysql.jdbc.Driver";
-    private String dbAddress = "jdbc:mysql://localhost:6000/";
+    private String dbAddress = "jdbc:mysql://localhost:3306/";
     private String dbName = "twitterbase";
     private String userName = "john";
     private String password = "pass1234";
@@ -32,7 +32,7 @@ public class TransactionDAO {
                 throw new SQLException(e);
             }
             connect = (Connection) DriverManager
-                    .getConnection("jdbc:mysql://127.0.0.1:6000/twitterbase?"
+                    .getConnection("jdbc:mysql://127.0.0.1:3306/twitterbase?"
                             + "useSSL=false&user=john&password=pass1234");
             //.getConnection(dbAddress + dbName, userName, password); this line gave me an error
             System.out.println(connect);
