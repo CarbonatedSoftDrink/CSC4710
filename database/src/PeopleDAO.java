@@ -46,7 +46,7 @@ public class PeopleDAO {
                 throw new SQLException(e);
             }
             connect = (Connection) DriverManager
-  			      .getConnection("jdbc:mysql://127.0.0.1:3306/testdb?"
+  			      .getConnection("jdbc:mysql://127.0.0.1:6000/testdb?"
   			          + "useSSL=false&user=john&password=john1234");
             System.out.println(connect);
         }

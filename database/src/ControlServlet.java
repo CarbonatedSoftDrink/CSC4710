@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
  
 import javax.servlet.RequestDispatcher;
@@ -26,14 +27,21 @@ public class ControlServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private PeopleDAO peopleDAO;
     private UserDAO userDAO;
+    private TweetDAO tweetDAO;
+    private TransactionDAO transactionDAO;
     public User LoggedIn;
     public String info = "";
+    public List followingList;
     private int globalID = 1;
     private int ppNumber = 1012;
+    boolean firstTime = true;
+    private int viewedTweetID = -1;
  
     public void init() {
         peopleDAO = new PeopleDAO(); 
     	userDAO = new UserDAO();
+    	transactionDAO = new TransactionDAO();
+        tweetDAO = new TweetDAO();
     }
  
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -51,6 +59,62 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/addLike":
+                System.out.println("The action is: addLike");
+                addLike(request, response);
+                break;
+            case "/viewTweet2":
+                System.out.println("The action is: showTweet2");
+                showTweet2(request, response);
+                break;
+            case "/addComment":
+                System.out.println("The action is: postComment");
+                postComment(request, response);
+                break;
+            case "/postTweet":
+                System.out.println("The action is: postTweet");
+                postTweet(request, response);
+                break;
+            case "/viewTweet":
+                System.out.println("The action is: showTweet");
+                showTweet(request, response);
+                break;
+            case "/unfollowUser":
+            	System.out.println("The action is: unfollowUser");
+            	unfollowUser(request, response);
+            	break;
+            case "/followUser":
+            	System.out.println("The action is: followUser");
+            	followUser(request, response);
+            	break;
+            case "/followPage":
+            	System.out.println("The action is: showFollowPage");
+            	showFollowPage(request, response);
+            	break;
+            case "/tipPPS":
+            	System.out.println("The action is: sellCheck");
+            	tipPPS(request, response);
+            	break;
+            case "/sellPPS":
+            	System.out.println("The action is: sellCheck");
+            	sellCheck(request, response);
+            	break;
+            case "/sellPage":
+            	System.out.println("The action is: showSellPage");
+            	showSellPage(request, response);
+            	break;
+            case "/buyPPS":
+            	System.out.println("The action is: buyCheck");
+            	buyCheck(request, response);
+            	break;
+            case "/buyPage":
+            	System.out.println("The action is: showBuyPage");
+            	showBuyPage(request, response);
+            	break;
+            case "/activities":
+            	System.out.println("The action is: showActivitiesPage");
+            	showActivitiesPage(request, response);
+            	break;
             case "/verifyLogin":
             	System.out.println("The action is: verifyLogin");
                 verifyLogin(request, response);           	
@@ -120,6 +184,294 @@ public class ControlServlet extends HttpServlet {
             throw new ServletException(ex);
         }
         System.out.println("doGet finished: 111111111111111111111111111111111111");
+    }
+
+	private void tipPPS(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+		String toUser;
+		Double ppsAmt;
+		
+		try {
+            ppsAmt = Double.parseDouble(request.getParameter("tipAmt"));
+            toUser = request.getParameter("tipUser");
+        }
+        catch (NumberFormatException e){
+        	ppsAmt = 0.0;
+        	toUser = "";
+        }
+		
+        if (ppsAmt > LoggedIn.getPpsbalance()) {
+        	info = "You are trying to tip more PPS than you own. Please try a lower value.";
+        	System.out.println(info);
+        	System.out.println("Ask the browser to call the followPage action next automatically");
+            response.sendRedirect("followPage");  //
+         
+            System.out.println("tipPPS1 finished: 11111111111111111111111111");
+        }
+        else if(toUser == "") {
+        	info = "Please enter a valid user.";
+        	System.out.println("Ask the browser to call the followPage action next automatically");
+            response.sendRedirect("followPage");  //
+        }
+        else {
+        	userDAO.tipPPS(LoggedIn, toUser, ppsAmt);
+        	info = "Successfully tipped " + ppsAmt + " PPS to " + toUser + "!";
+        	LoggedIn = userDAO.getUser(LoggedIn.getId()); // refreshes user data
+        	System.out.println("Ask the browser to call the followPage action next automatically");
+            response.sendRedirect("followPage");  //
+            System.out.println("tipPPS2 finished: 11111111111111111111111111");
+        }
+		
+	}
+	
+    private void addLike(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, ServletException, IOException {
+        System.out.println("addLike started: 000000000000000000000000000");
+
+        boolean status = tweetDAO.addLike(viewedTweetID, LoggedIn);
+        if (status == false) {
+            System.out.println("User has already liked this tweet.");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/viewTweet2");
+            dispatcher.forward(request, response);
+            System.out.println("addLike finished: 1111111111111111111111111111");
+        }
+        else {
+            System.out.println("User has liked this tweet!");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/viewTweet2");
+            dispatcher.forward(request, response);
+            System.out.println("addLike finished: 1111111111111111111111111111");
+        }
+    }
+
+    private void showTweet2(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, ServletException, IOException {
+        System.out.println("showTweet2 started: 000000000000000000000000000");
+
+        //int id = Integer.parseInt(request.getParameter("id"));
+        int id;
+        //viewedTweetID = id;
+        id = viewedTweetID;
+        Tweet existingTweet = tweetDAO.getTweet(id);
+        int likes = tweetDAO.getLikes(viewedTweetID);
+        request.setAttribute("likes", likes);
+        
+        if (tweetDAO.userLikeCheck(viewedTweetID, LoggedIn) == true) {
+        	info = "You liked this tweet.";
+        }
+        else {
+        	info = "";
+        }
+        request.setAttribute("info", info);
+
+        List<Tweet> listComments = tweetDAO.listAllComments(id);
+        request.setAttribute("listComments", listComments);
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("ViewTweet.jsp");
+        request.setAttribute("tweet", existingTweet);
+        dispatcher.forward(request, response); // The forward() method works at server side, and It sends the same request and response objects to another servlet.
+        System.out.println("Now you see the ViewTweet page in your browser.");
+
+        System.out.println("showTweet2 finished: 1111111111111111111111111111");
+    }
+
+    private void postComment(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException{
+        System.out.println("postComment started: 00000000000000000000000000000000000");
+        int id = viewedTweetID;
+        String tweetContent = request.getParameter("makeComment");
+        String tweetAuthor = LoggedIn.getUsername();
+        System.out.println(tweetAuthor);
+        if (tweetContent.equals("")) {
+            info = "Empty tweet contents, tweet not created.";
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/viewTweet2");
+            dispatcher.forward(request, response);
+        }
+        else {
+            Tweet newTweet = new Tweet(tweetContent, tweetAuthor);
+            tweetDAO.insertComment(newTweet, id);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/viewTweet2");
+            dispatcher.forward(request, response);
+
+            System.out.println("postComment finished: 1111111111111111111111111111");
+
+        }
+
+        System.out.println("postComment2 finished: 1111111111111111111111111111");
+    }
+
+    private void postTweet(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException{
+        System.out.println("postTweet started: 00000000000000000000000000000000000");
+        String tweetContent = request.getParameter("makeTweet");
+        String tweetAuthor = LoggedIn.getUsername();
+        if (tweetContent.equals("")) {
+            info = "Empty tweet contents, tweet not created.";
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/homepage");
+            dispatcher.forward(request, response);
+        }
+        else {
+            Tweet newTweet = new Tweet(tweetContent, tweetAuthor);
+            tweetDAO.insert(newTweet);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/homepage");
+            dispatcher.forward(request, response);
+
+            System.out.println("postTweet finished: 1111111111111111111111111111");
+
+        }
+
+        System.out.println("postTweet2 finished: 1111111111111111111111111111");
+    }
+
+    private void showTweet(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, ServletException, IOException {
+        System.out.println("showTweet started: 000000000000000000000000000");
+
+        int id = Integer.parseInt(request.getParameter("id"));
+        viewedTweetID = id;
+        Tweet existingTweet = tweetDAO.getTweet(id);
+        int likes = tweetDAO.getLikes(viewedTweetID);
+        request.setAttribute("likes", likes);
+        
+        if (tweetDAO.userLikeCheck(viewedTweetID, LoggedIn) == true) {
+        	info = "You liked this tweet.";
+        }
+        else {
+        	info = "";
+        }
+        request.setAttribute("info", info);
+
+        List<Tweet> listComments = tweetDAO.listAllComments(id);
+        request.setAttribute("listComments", listComments);
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("ViewTweet.jsp");
+        request.setAttribute("tweet", existingTweet);
+        dispatcher.forward(request, response); // The forward() method works at server side, and It sends the same request and response objects to another servlet.
+        System.out.println("Now you see the ViewTweet page in your browser.");
+
+        System.out.println("showTweet finished: 1111111111111111111111111111");
+    }
+
+	private void followUser(HttpServletRequest request, HttpServletResponse response) 
+			throws SQLException, IOException, ServletException {
+		userDAO.updateFollowers(Integer.parseInt(request.getParameter("id")), LoggedIn.getId());
+		response.sendRedirect("followPage");
+	}
+	
+	private void unfollowUser(HttpServletRequest request, HttpServletResponse response) 
+			throws SQLException, IOException, ServletException {
+		userDAO.removeFollowing(LoggedIn.getUsername(), request.getParameter("username"));
+		response.sendRedirect("followPage");
+	}
+
+	private void showFollowPage(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException {
+		List followeeList = userDAO.getFollowees(LoggedIn);
+		List<User> listUsers = userDAO.getAllUsers();
+		request.setAttribute("FOLLOWEES", followeeList);
+		request.setAttribute("USERS", listUsers);
+    	request.setAttribute("info", info);
+		 System.out.println("showSellPage started: 00000000000000000000000000000000000");
+	     RequestDispatcher dispatcher = request.getRequestDispatcher("FollowPage.jsp");       
+	     dispatcher.forward(request, response);
+      
+         System.out.println("showSellPage finished: 111111111111111111111111111111111111");
+	}
+    
+	private void sellCheck(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("sellCheck started: 00000000000000000000000000000000000");
+        
+        float sellAmount;
+        float dollarAmount;
+        try {
+            sellAmount = Integer.parseInt(request.getParameter("toSell"));
+        }
+        catch (NumberFormatException e){
+        	sellAmount = 0;
+        }
+        
+        dollarAmount = sellAmount / 100;
+        if (sellAmount > LoggedIn.getPpsbalance()) {
+        	info = "You are trying to sell more PPS than you own. Please try a lower value.";
+        	System.out.println("Ask the browser to call the sellPage action next automatically");
+            response.sendRedirect("sellPage");  //
+         
+            System.out.println("sellCheck1 finished: 11111111111111111111111111");
+        }
+        else {
+        	userDAO.sellPPS(LoggedIn, sellAmount);
+        	info = "Successfully sold " + sellAmount + " PPS!";
+        	LoggedIn = userDAO.getUser(LoggedIn.getId()); // refreshes user data
+        	System.out.println("Ask the browser to call the sellPage action next automatically");
+            response.sendRedirect("sellPage");  //
+            System.out.println("sellCheck2 finished: 11111111111111111111111111");
+        }
+    }
+    
+    private void showSellPage(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showSellPage started: 00000000000000000000000000000000000");
+        
+        //info = "";
+        //request.setAttribute("username", LoggedIn.getUserID());
+        request.setAttribute("PPA", LoggedIn.getPpsbalance());
+        request.setAttribute("USA", LoggedIn.getBankbalance());
+        //request.setAttribute("PPAD", LoggedIn.getPPAddress());
+        request.setAttribute("info", info);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("SellPage.jsp");       
+        dispatcher.forward(request, response);
+     
+        System.out.println("showSellPage finished: 111111111111111111111111111111111111");
+    }
+    
+    private void buyCheck(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("buyCheck started: 00000000000000000000000000000000000");
+        
+        float buyAmount;
+        float checkAmount;
+        try {
+            buyAmount = Integer.parseInt(request.getParameter("toBuy"));
+        }
+        catch (NumberFormatException e){
+        	buyAmount = 0;
+        }
+        
+        checkAmount = buyAmount / 100;
+        if (checkAmount > LoggedIn.getBankbalance()) {
+        	info = "You do not have enough U.S. Dollar to purchase the specified amount of PPS. Please try a lower value.";
+        	System.out.println("Ask the browser to call the buyPage action next automatically");
+            response.sendRedirect("buyPage");  //
+         
+            System.out.println("buyCheck1 finished: 11111111111111111111111111");
+        }
+        else {
+        	userDAO.BuyPPS(LoggedIn, buyAmount);
+        	info = "Successfully purchased " + buyAmount +" PPS!";
+        	LoggedIn = userDAO.getUser(LoggedIn.getId()); // refreshes user data
+        	System.out.println("Ask the browser to call the buyPage action next automatically");
+            response.sendRedirect("buyPage");  //
+            System.out.println("buyCheck2 finished: 11111111111111111111111111");
+        }
+        
+        
+     
+        System.out.println("buyCheck3 finished: 111111111111111111111111111111111111");
+    }
+    
+    private void showBuyPage(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showBuyPage started: 00000000000000000000000000000000000");
+        
+        //info = "";
+        //request.setAttribute("username", LoggedIn.getUserID());
+        request.setAttribute("PPA", LoggedIn.getPpsbalance());
+        request.setAttribute("USA", LoggedIn.getBankbalance());
+        //request.setAttribute("PPAD", LoggedIn.getPPAddress());
+        request.setAttribute("info", info);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("BuyPage.jsp");       
+        dispatcher.forward(request, response);
+     
+        System.out.println("showBuyPage finished: 111111111111111111111111111111111111");
     }
     
     private void verifyLogin(HttpServletRequest request, HttpServletResponse response)
@@ -199,7 +551,6 @@ public class ControlServlet extends HttpServlet {
         catch (NumberFormatException e){
         	age = 0;
         }
-        //int age = Integer.parseInt(request.getParameter("age"));
         int ppaddress = ppNumber;
         //ppNumber += 1;
         System.out.println("userid:" + userid + ", password:" + password + ", firstname:" + firstname + ", lastname:" + lastname + ", age:" + age);
@@ -229,7 +580,7 @@ public class ControlServlet extends HttpServlet {
         	else {
         		User newUser = new User(userid, password, firstname, lastname, age, ppaddress);
                 userDAO.insert(newUser);
-                LoggedIn = newUser;
+                LoggedIn = userDAO.getUserFromName(userid);
                 ppNumber += 1;
              
                 System.out.println("Ask the browser to call the homepage action next automatically");
@@ -238,6 +589,23 @@ public class ControlServlet extends HttpServlet {
                 System.out.println("insertUser finished: 11111111111111111111111111");
         	}
         }
+    }
+    
+    private void showActivitiesPage(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showActivitiesPage started: 00000000000000000000000000000000000");
+        
+        info = "";
+        List<Transaction> transactionList = transactionDAO.getTransactions(LoggedIn);
+        request.setAttribute("username", LoggedIn.getUsername());
+        request.setAttribute("PPA", LoggedIn.getPpsbalance());
+        request.setAttribute("USA", LoggedIn.getBankbalance());
+        request.setAttribute("PPAD", LoggedIn.getPpaddress());
+		request.setAttribute("transactions", transactionList);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("ActivitiesPage.jsp");       
+        dispatcher.forward(request, response);
+     
+        System.out.println("showActivitiesPage finished: 111111111111111111111111111111111111");
     }
     
     private void showSignup(HttpServletRequest request, HttpServletResponse response) 
@@ -284,8 +652,14 @@ public class ControlServlet extends HttpServlet {
     		throws SQLException, IOException, ServletException{
         System.out.println("showHomePage started: 00000000000000000000000000000000000");
         
+        List<Tweet> listTweets = tweetDAO.listAllTweets();
+        request.setAttribute("listTweets", listTweets); 
+        
         info = "";
-        request.setAttribute("username", LoggedIn.getUserID());
+        request.setAttribute("info", info);
+        request.setAttribute("PPA", LoggedIn.getPpsbalance());
+        request.setAttribute("USA", LoggedIn.getBankbalance());
+        request.setAttribute("username", LoggedIn.getUsername());
         RequestDispatcher dispatcher = request.getRequestDispatcher("HomePage.jsp");       
         dispatcher.forward(request, response);
      

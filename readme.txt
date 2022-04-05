@@ -1,6 +1,9 @@
 # Database Project
-All work in part 1 was done by Gregory Flores, gn8967.
-Instructions to download and install the project are available inside of the video.
+
+Part 2: 
+Tweeting, Commenting, Buying and Selling PPS functionality created by Gregory Flores, gn8967. 
+Activites, Follow/Unfollow and Tipping PPS functionality created by Golam Tahsin, gj4559.
+
 
 Instructions:
 -Download the files

@@ -18,74 +18,169 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 //import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 /**
  * Servlet implementation class Connect
  */
 @WebServlet("/UserDAO")
 public class UserDAO {
+    private String jdbcDriver = "com.mysql.jdbc.Driver";
+    private String dbAddress = "jdbc:mysql://localhost:3306/";
+    private String dbName = "twitterbase";
+    private String userName = "john";
+    private String password = "pass1234";
+
     private static final long serialVersionUID = 1L;
-    private Connection connect = null;
-    private Statement statement = null;
-    private PreparedStatement preparedStatement = null;
-    private ResultSet resultSet = null;
-    
-    // SQL queries //
-    String sql0 = "CREATE DATABASE IF NOT EXISTS twitterbase";
-    String sql1 = "DROP TABLE IF EXISTS User";
-    String sql2 = "DROP TABLE IF EXISTS Tweet";
-    String sql3 = "DROP TABLE IF EXISTS Transactions";
-    String sql4 = "DROP TABLE IF EXISTS Followers";
-    String sql5 = "DROP TABLE IF EXISTS LikedTweets";
-    
-    String sql6 = "CREATE TABLE IF NOT EXISTS User "
-    		+ "	(id int NOT NULL AUTO_INCREMENT, "
-    		+ "    UserID varchar(255) UNIQUE, "
-    		+ "    Password varchar(255), "
-    		+ "    FirstName varchar(255), "
-    		+ "    LastName varchar(255), "
-    		+ "    Age int, "
-    		+ "    PPAddress int UNIQUE, "
-    		+ "    PPWallet int, "
-    		+ "    DollarWallet int, "
-    		+ "    PRIMARY KEY (id))";
-    
-    String sql7 = "CREATE TABLE IF NOT EXISTS Tweet "
-    		+ "	(id int NOT NULL AUTO_INCREMENT, "
-    		+ "    TweeterID varchar(255), "
-    		+ "    Content varchar(300), "
-    		+ "    ParentTweetID int, "
-    		+ "    FOREIGN KEY (TweeterID) REFERENCES User(UserID), "
-    		+ "	   PRIMARY KEY (id))";
-    
-    String sql8 = "CREATE TABLE IF NOT EXISTS Transactions "
-    		+ "	(id int NOT NULL AUTO_INCREMENT, "
-    		+ "    SenderAddress int, "
-    		+ "    ReceiverAddress int, "
-    		+ "    PPAmount int, "
-    		+ "    DollarAmount int, "
-    		+ "    FOREIGN KEY (SenderAddress) REFERENCES User(PPAddress), "
-    		+ "    FOREIGN KEY (ReceiverAddress) REFERENCES User(PPAddress), "
-    		+ "    PRIMARY KEY (id))";
-    
-    String sql9 = "CREATE TABLE IF NOT EXISTS Followers "
-    		+ "	(id int NOT NULL AUTO_INCREMENT, "
-    		+ "    UserID varchar(255), "
-    		+ "    FollowingUserID varchar(255), "
-    		+ "    FOREIGN KEY (UserID) REFERENCES User(UserID), "
-    		+ "    FOREIGN KEY (FollowingUserID) REFERENCES User(UserID), "
-    		+ "    PRIMARY KEY (id))";
-    
-    String sql10 = "CREATE TABLE IF NOT EXISTS LikedTweets "
-    		+ "	(id int NOT NULL AUTO_INCREMENT, "
-    		+ "    UserID varchar(255), "
-    		+ "    LikedTweetID int, "
-    		+ "    FOREIGN KEY (UserID) REFERENCES User(UserID), "
-    		+ "    FOREIGN KEY (LikedTweetID) REFERENCES Tweet(id), "
-    		+ "    PRIMARY KEY (id))";
-    
-    String sql11 = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"root\", \"pass1234\", \"root\", \"root\", 99, 1000, 1000000000, 1036)";
-    ////////////////
+    private PreparedStatement preparedStatement;
+    private Statement statement;
+    private ResultSet result;
+    private Connection connect;
+
+    // SQL DATA //
+    String[][] Users = {
+            {"root", "pass1234", "root", "root", "0", "0", "0", "0", "0", "0", "1000000000", "0", "0"},
+            {"johnsmith@gmail.com", "johnsmith", "John", "Smith", "10-14-1997", "7641", "Oak Lane", "Detroit", "MI", "48202", "0", "1000.0", "01"},
+            {"angieschnell@gmail.com", "angieschnell", "Angie", "Schnell", "11-18-1964", "1013", "Hornor Avenue", "Tulsa", "OK", "74134", "0", "1000.0", "02"},
+            {"lindapogue@gmail.com", "lindapogue", "Linda", "Pogue", "2-3-1987", "136", "Sycamore Fork Road", "Hopkins", "MN", "55343", "0", "1000.0", "03"},
+            {"gradyearles@gmail.com", "gradyearles", "Grady", "Earles", "3-22-1961", "3577", "Ingram Street", "Dayton", "OH", "45402", "0", "1000.0", "04"},
+            {"crystalhenson@gmail.com", "crystalhenson", "Crystal", "Henson", "6-22-1969", "2119", "Spring Street", "Bowen", "IL", "62316", "0", "1000.0", "05"},
+            {"tracymcfadden@gmail.com", "tracymcfadden", "Tracy", "McFadden", "4-27-1997", "4511", "Pine Street", "Indiana", "PA", "15701", "0", "1000.0", "06"},
+            {"richardnolan@gmail.com", "richardnolan", "Richard", "Nolan", "11-21-1981", "4417", "Wescam Court", "Reno", "NV", "89501", "0", "1000.0", "07"},
+            {"anthonyneil@gmail.com", "anthonyneil", "Anthony", "Neil", "10-22-1997", "1627", "Ocello Street", "San Diego", "CA", "92111", "0", "1000.0", "08"},
+            {"timrodriguez@gmail.com", "timrodriguez", "Tim", "Rodriguez", "4-1-1958", "4959", "Rodney Street", "Fairview Heights", "MO", "62208", "0", "1000.0", "09"},
+            {"robertmoncrief@gmail.com", "robertmoncrief", "Robert", "Moncrief", "1-7-1950", "98", "James Martin Circle", "Columbus", "OH", "43201", "0", "1000.0", "10"}
+    };
+
+    String[][] transactionList = {
+            {"johnsmith@gmail.com", "angieschnell@gmail.com", "138", "0", "2022-03-11 14:22:10", "tip", "0.01"},
+            {"angieschnell@gmail.com", "lindapogue@gmail.com", "145", "0", "2022-03-10 08:12:11", "tip", "0.01"},
+            {"lindapogue@gmail.com", "gradyearles@gmail.com", "87", "0", "2022-02-17 06:11:11", "tip", "0.01"},
+            {"gradyearles@gmail.com", "crystalhenson@gmail.com", "73", "0", "2022-05-18 18:05:45", "tip", "0.01"},
+            {"root", "lindapogue@gmail.com", "1875", "0", "2022-07-14 08:06:44", "buy", "0.01"},
+            {"crystalhenson@gmail.com", "tracymcfadden@gmail.com", "450", "0", "2022-01-12 13:04:22", "tip", "0.01"},
+            {"richardnolan@gmail.com", "robertmoncrief@gmail.com", "1517", "0", "2021-12-13 14:07:49", "tip", "0.01"},
+            {"robertmoncrief@gmail.com", "root", "181", "0", "2022-06-15 09:01:11", "sell", "0.01"},
+            {"timrodriguez@gmail.com", "anthonyneil@gmail.com", "18987", "0", "2022-02-13 14:07:17", "tip", "0.01"},
+            {"richardnolan@gmail.com", "lindapogue@gmail.com", "1785", "0", "2022-04-01 04:02:18", "tip", "0.01"}
+    };
+
+    String[][] followList = {
+            {"robertmoncrief@gmail.com", "timrodriguez@gmail.com"},
+            {"timrodriguez@gmail.com", "richardnolan@gmail.com"},
+            {"gradyearles@gmail.com", "angieschnell@gmail.com"},
+            {"angieschnell@gmail.com", "lindapogue@gmail.com"},
+            {"lindapogue@gmail.com", "gradyearles@gmail.com"},
+            {"gradyearles@gmail.com", "timrodriguez@gmail.com"},
+            {"crystalhenson@gmail.com", "lindapogue@gmail.com"},
+            {"richardnolan@gmail.com", "johnsmith@gmail.com"},
+            {"crystalhenson@gmail.com", "tracymcfadden@gmail.com"},
+            {"angieschnell@gmail.com", "johnsmith@gmail.com"}
+    };
+
+    String[][] tweetsList = {
+            {"The rain was coming. Everyone thought this would be a good thing. It hadn't rained in months and the earth was dry as a bone.", "johnsmith@gmail.com", "2022-12-23 02:36:41"},
+            {"ï¿½Ingredients for life,ï¿½ said the backside of the truck. They mean food, but really food is only 1 ingredient of life.", "angieschnell@gmail.com", "2022-04-23 12:38:44"},
+            {"He had disappointed himself more than anyone else. That wasn't to say that he hadn't disappointed others.", "lindapogue@gmail.com", "2022-11-22 12:38:44"},
+            {"It really doesn't matter what she thinks as it isn't her problem to solve. That's what he kept trying to convince himself.", "gradyearles@gmail.com", "2022-01-03 12:38:44"},
+            {"There was nothing else to do. The deed had already been done and there was no going back.", "crystalhenson@gmail.com", "2022-11-23 12:38:44"},
+            {"There had been no mistakes throughout the entire process. It had been perfection and he knew it without a doubt.", "tracymcfadden@gmail.com", "2022-11-23 12:38:44"},
+            {"One can cook on and with an open fire. These are some of the ways to cook with fire outside. Cooking meat using a spit is a great way to evenly cook meat.", "richardnolan@gmail.com", "2022-11-23 12:38:44"},
+            {"All he wanted was a candy bar. It didn't seem like a difficult request to comprehend, but the clerk remained frozen.", "anthonyneil@gmail.com", "2022-11-23 12:38:44"},
+            {"The thing that's great about this job is the time sourcing the items involves no traveling.", "timrodriguez@gmail.com", "2022-11-23 12:38:44"},
+            {"There were a variety of ways to win the game. James had played it long enough to know most of them.", "robertmoncrief@gmail.com", "2022-11-23 12:38:44"}
+    };
+
+    String[][] commentsList = {
+            {"Morbi blandit cursus risus at ultrices mi tempus imperdiet nulla.", "2022-11-09 18:07:01", "1", "johnsmith@gmail.com"},
+            {"At risus viverra adipiscing at in tellus integer.", "2022-12-22 09:06:45", "2", "angieschnell@gmail.com"},
+            {"Nibh mauris cursus mattis molestie a iaculis at.", "2022-02-11 07:11:32", "3", "lindapogue@gmail.com"},
+            {"At volutpat diam ut venenatis tellus in metus vulputate.", "2022-04-18 17:05:55", "4", "gradyearles@gmail.com"},
+            {"Fames ac turpis egestas sed.", "2022-09-13 11:06:31", "5", "crystalhenson@gmail.com"},
+            {"Faucibus ornare suspendisse sed nisi. Faucibus scelerisque eleifend donec pretium vulputate.", "2022-07-19 06:01:13", "6", "tracymcfadden@gmail.com"},
+            {"Aliquam faucibus purus in massa tempor.", "2022-11-17 16:02:24", "7", "richardnolan@gmail.com"},
+            {"Netus et malesuada fames ac turpis egestas.", "2022-03-11 03:01:36", "8", "anthonyneil@gmail.com"},
+            {"Id nibh tortor id aliquet.", "2022-01-15 05:09:37", "9", "timrodriguez@gmail.com"},
+            {"Ipsum a arcu cursus vitae congue mauris rhoncus aenean.", "2022-08-13 01:04:15", "10", "robertmoncrief@gmail.com"}
+    };
+
+    String[][] likesList = {
+            {"1", "johnsmith@gmail.com"},
+            {"2", "angieschnell@gmail.com"},
+            {"2", "lindapogue@gmail.com"},
+            {"4", "gradyearles@gmail.com"},
+            {"1", "crystalhenson@gmail.com"},
+            {"6", "tracymcfadden@gmail.com"},
+            {"2", "richardnolan@gmail.com"},
+            {"6", "anthonyneil@gmail.com"},
+            {"3", "timrodriguez@gmail.com"},
+            {"9", "robertmoncrief@gmail.com"},
+    };
+
+    //SQL QUERIES //
+    String UsersTable = "CREATE TABLE Users ("
+            + "id INTEGER NOT NULL AUTO_INCREMENT,"
+            + "username VARCHAR(50) NOT NULL UNIQUE,"
+            + "password VARCHAR(50) NOT NULL,"
+            + "firstname VARCHAR(50),"
+            + "lastname VARCHAR(50),"
+            + "age INTEGER,"
+            + "birthday VARCHAR(50),"
+            + "streetnumber INTEGER,"
+            + "street VARCHAR(50),"
+            + "city VARCHAR(50),"
+            + "state VARCHAR(50),"
+            + "zipcode INTEGER,"
+            + "ppsbalance INTEGER,"
+            + "bankbalance DOUBLE,"
+            + "ppaddress int UNIQUE,"
+            + "PRIMARY KEY(id))";
+
+    String transactionsTable = "CREATE TABLE Transactions ("
+            + "transid INTEGER NOT NULL AUTO_INCREMENT,"
+            + "fromuser VARCHAR(50),"
+            + "touser VARCHAR(50),"
+            + "ppsamt INTEGER,"
+            + "dollaramt DOUBLE,"
+            + "`when` DATETIME,"
+            + "transtype VARCHAR(50),"
+            + "price DOUBLE,"
+            + "check(transtype IN ('buy', 'sell', 'tip')),"
+            + "PRIMARY KEY (transid),"
+            + "FOREIGN KEY (fromuser) REFERENCES Users(username),"
+            + "FOREIGN KEY (touser) REFERENCES Users(username))";
+
+    String followTable = "CREATE TABLE Follow ("
+            + "followerid VARCHAR(50),"
+            + "followeeid VARCHAR(50),"
+            + "PRIMARY KEY (followerid, followeeid),"
+            + "FOREIGN KEY (followerid) REFERENCES Users(username),"
+            + "FOREIGN KEY (followeeid) REFERENCES Users(username))";
+
+    String tweetsTable = "CREATE TABLE Tweets ("
+            + "tweetid INTEGER NOT NULL AUTO_INCREMENT,"
+            + "content VARCHAR(200),"
+            + "author VARCHAR(100) NOT NULL,"
+            + "`when` DATETIME,"
+            + "PRIMARY KEY (tweetid),"
+            + "FOREIGN KEY (author) REFERENCES Users(username))";
+
+    String commentTable = "CREATE TABLE Comments ("
+            + "id INTEGER NOT NULL AUTO_INCREMENT,"
+            + "`desc` VARCHAR(200),"
+            + "`when` DATETIME,"
+            + "tweetid INTEGER NOT NULL,"
+            + "commentor VARCHAR(100),"
+            + "PRIMARY KEY (id),"
+            + "FOREIGN KEY (tweetid) REFERENCES Tweets(tweetid),"
+            + "FOREIGN KEY (commentor) REFERENCES Users(username))";
+
+    String likesTable = "CREATE TABLE Likes ("
+            + "tweetid INTEGER NOT NULL,"
+            + "userid VARCHAR(100),"
+            + "PRIMARY KEY (tweetid, userid),"
+            + "FOREIGN KEY (tweetid) REFERENCES Tweets(tweetid),"
+            + "FOREIGN KEY (userid) REFERENCES Users(username))";////////////////
 
 
     public UserDAO() {
@@ -105,28 +200,36 @@ public class UserDAO {
             connect = (Connection) DriverManager
                     .getConnection("jdbc:mysql://127.0.0.1:3306/twitterbase?"
                             + "useSSL=false&user=john&password=pass1234");
+            //.getConnection(dbAddress + dbName, userName, password); this line gave me an error
             System.out.println(connect);
         }
     }
 
     public List<User> listAllUsers() throws SQLException {
         List<User> listUser = new ArrayList<User>();
-        String sql = "SELECT * FROM User";
+        String sql = "SELECT * FROM Users";
         connect_func();
         statement =  (Statement) connect.createStatement();
         ResultSet resultSet = statement.executeQuery(sql);
 
         while (resultSet.next()) {
             int id = resultSet.getInt("id");
-            String UserID = resultSet.getString("UserID");
-            String FirstName = resultSet.getString("FirstName");
-            String LastName = resultSet.getString("LastName");
-            int Age = resultSet.getInt("Age");
-            int PPAddress = resultSet.getInt("PPAddress");
-            int PPWallet = resultSet.getInt("PPWallet");
-            int DollarWallet = resultSet.getInt("DollarWallet");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            Integer age = resultSet.getInt("age");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
 
-            User user = new User(id, UserID, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
+            User user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
             listUser.add(user);
         }
         resultSet.close();
@@ -140,282 +243,162 @@ public class UserDAO {
             connect.close();
         }
     }
-    
+
     public void rootReset() throws SQLException {
-    	String sqlTemp;
-        connect_func();
-        statement = connect.createStatement();
-        statement.executeUpdate(sql0);
-        statement.executeUpdate(sql5);
-        statement.executeUpdate(sql4);
-        statement.executeUpdate(sql3);
-        statement.executeUpdate(sql2);
-        statement.executeUpdate(sql1);
-        statement.executeUpdate(sql6);
-        statement.executeUpdate(sql7);
-        statement.executeUpdate(sql8);
-        statement.executeUpdate(sql9);
-        statement.executeUpdate(sql10);
-        preparedStatement = connect.prepareStatement(sql11);
-        preparedStatement.executeUpdate();
-        
-        // User //
-        
-        sqlTemp = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"john@aol.com\", \"apple\", \"john\", \"apple\", 24, 1001, 100, 999)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"gary@mail.com\", \"hidethis\", \"gary\", \"jack\", 19, 1002, 1000, 990)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"coolguy@mail.com\", \"reallycool\", \"cool\", \"guy\", 21, 1003, 0, 1000)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"round@mail.com\", \"nice!\", \"round\", \"person\", 50, 1004, 1500, 975)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"circle@mail.com\", \"oval\", \"circle\", \"circle\", 43, 1005, 500, 1000)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"square@mail.com\", \"sharp\", \"square\", \"rectangle\", 27, 1006, 500, 1000)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"fakemail@mail.com\", \"fakepassword\", \"fakename\", \"fakelastname\", 33, 1007, 0, 1000)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"reporter@mail.com\", \"reportingpassword\", \"anne\", \"reporter\", 28, 1008, 0, 1000)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"spiderman@mail.com\", \"spiders\", \"peter\", \"parker\", 33, 1009, 0, 1000)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (\"superman@mail.com\", \"krypto\", \"clark\", \"kent\", 39, 1010, 0, 1000)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        
-        // Tweet //
-        
-        sqlTemp = "insert into Tweet(TweeterID, Content, ParentTweetID) values (\"john@aol.com\", \"Lovely weather that we're having, huh?\", null)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Tweet(TweeterID, Content, ParentTweetID) values (\"john@aol.com\", \"That new batman movie was really cool!\", null)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Tweet(TweeterID, Content, ParentTweetID) values (\"gary@mail.com\", \"Yeah, the sun was out, and it wasn't too hot!\", 1)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Tweet(TweeterID, Content, ParentTweetID) values (\"superman@mail.com\", \"I disagree, I think the superman movie was better!1\", 2)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Tweet(TweeterID, Content, ParentTweetID) values (\"spiderman@mail.com\", \"They were both good, but spiderman's was better!\", 4)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Tweet(TweeterID, Content, ParentTweetID) values (\"reporter@mail.com\", \"How do I tweet?\", null)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Tweet(TweeterID, Content, ParentTweetID) values (\"circle@mail.com\", \"You just did.\", 6)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Tweet(TweeterID, Content, ParentTweetID) values (\"square@mail.com\", \"Happy Easter!\", null)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Tweet(TweeterID, Content, ParentTweetID) values (\"square@mail.com\", \"Databases are cool... right?\", null)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Tweet(TweeterID, Content, ParentTweetID) values (\"gary@mail.com\", \"Yeah!\", 9)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        
-        // Transactions //
-        
-        sqlTemp = "insert into Transactions(SenderAddress, ReceiverAddress, PPAmount, DollarAmount) values (1000, 1001, 100, -1.00)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Transactions(SenderAddress, ReceiverAddress, PPAmount, DollarAmount) values (1001, 1000, -100, 1.00)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Transactions(SenderAddress, ReceiverAddress, PPAmount, DollarAmount) values (1000, 1002, 1000, -10.00)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Transactions(SenderAddress, ReceiverAddress, PPAmount, DollarAmount) values (1002, 1000, -1000, 10.00)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Transactions(SenderAddress, ReceiverAddress, PPAmount, DollarAmount) values (1000, 1004, 2500, -25.00)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Transactions(SenderAddress, ReceiverAddress, PPAmount, DollarAmount) values (1004, 1000, -2500, 25.00)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Transactions(SenderAddress, ReceiverAddress, PPAmount, DollarAmount) values (1004, 1005, 500, 0.00)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Transactions(SenderAddress, ReceiverAddress, PPAmount, DollarAmount) values (1005, 1004, -500, 0.00)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Transactions(SenderAddress, ReceiverAddress, PPAmount, DollarAmount) values (1004, 1006, 500, 0.00)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Transactions(SenderAddress, ReceiverAddress, PPAmount, DollarAmount) values (1006, 1004, -500, 0.00)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        
-        // LikedTweets //
-        
-        sqlTemp = "insert into LikedTweets(UserID, LikedTweetID) values (\"gary@mail.com\", 1)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into LikedTweets(UserID, LikedTweetID) values (\"superman@mail.com\", 6)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into LikedTweets(UserID, LikedTweetID) values (\"john@aol.com\", 6)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into LikedTweets(UserID, LikedTweetID) values (\"reporter@mail.com\", 1)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into LikedTweets(UserID, LikedTweetID) values (\"coolguy@mail.com\", 1)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into LikedTweets(UserID, LikedTweetID) values (\"square@mail.com\", 8)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into LikedTweets(UserID, LikedTweetID) values (\"circle@mail.com\", 9)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into LikedTweets(UserID, LikedTweetID) values (\"gary@mail.com\", 9)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into LikedTweets(UserID, LikedTweetID) values (\"reporter@mail.com\", 2)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into LikedTweets(UserID, LikedTweetID) values (\"coolguy@mail.com\", 4)";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        
-        // Followers //
-        
-        sqlTemp = "insert into Followers(UserID, FollowingUserID) values (\"coolguy@mail.com\", \"gary@mail.com\")";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Followers(UserID, FollowingUserID) values (\"gary@mail.com\", \"john@aol.com\")";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Followers(UserID, FollowingUserID) values (\"john@aol.com\", \"gary@mail.com\")";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Followers(UserID, FollowingUserID) values (\"coolguy@mail.com\", \"superman@mail.com\")";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Followers(UserID, FollowingUserID) values (\"superman@mail.com\", \"spiderman@mail.com\")";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Followers(UserID, FollowingUserID) values (\"square@mail.com\", \"circle@mail.com\")";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Followers(UserID, FollowingUserID) values (\"circle@mail.com\", \"square@mail.com\")";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Followers(UserID, FollowingUserID) values (\"gary@mail.com\", \"reporter@mail.com\")";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Followers(UserID, FollowingUserID) values (\"john@aol.com\", \"reporter@mail.com\")";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        sqlTemp = "insert into Followers(UserID, FollowingUserID) values (\"spiderman@mail.com\", \"reporter@mail.com\")";
-        preparedStatement = connect.prepareStatement(sqlTemp);
-        preparedStatement.executeUpdate();
-        
-        statement.close();
-        preparedStatement.close();
+        try {
+            Class.forName(jdbcDriver);
+            //connect = DriverManager.getConnection(dbAddress + dbName, userName, password);
+            connect_func();
+            statement = connect.createStatement();
+            System.out.println();
+            try {
+                statement.executeUpdate("DROP TABLE IF EXISTS Comments");
+                statement.executeUpdate("DROP TABLE IF EXISTS Likes");
+                statement.executeUpdate("DROP TABLE IF EXISTS Tweets");
+                statement.executeUpdate("DROP TABLE IF EXISTS Transactions");
+                statement.executeUpdate("DROP TABLE IF EXISTS Follow");
+                statement.executeUpdate("DROP TABLE IF EXISTS Users");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+
+            statement.executeUpdate(UsersTable);
+            statement.executeUpdate(transactionsTable);
+            statement.executeUpdate(followTable);
+            statement.executeUpdate(tweetsTable);
+            statement.executeUpdate(commentTable);
+            statement.executeUpdate(likesTable);
+            System.out.println("Tables Created");
+            for(int i = 0; i < Users.length; i++) {
+                statement.executeUpdate("INSERT INTO Users (username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppaddress) VALUES ('" + Users[i][0] +"', '" + Users[i][1] + "', '" + Users[i][2] + "', '" + Users[i][3] + "', '" + Users[i][4] + "', " + Users[i][5] + ", '" + Users[i][6] + "', '" + Users[i][7] + "', '" + Users[i][8] + "', " + Users[i][9] + ", " + Users[i][10] + ", " + Users[i][11] + ", " + Users[i][12] + ")");
+            }
+            for(int i = 0; i < transactionList.length; i++) {
+                statement.executeUpdate("INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES ('" + transactionList[i][0] + "', '" + transactionList[i][1] + "', " + transactionList[i][2] + ", " + transactionList[i][3] + ", '" + transactionList[i][4] + "', '" + transactionList[i][5] + "', " + transactionList[i][6] + ")");
+            }
+            for(int i = 0; i < followList.length; i++) {
+                statement.executeUpdate("INSERT INTO follow (followerid, followeeid) VALUES (" + "\"" + followList[i][0] + "\"" + ", "  + "\"" + followList[i][1]  + "\"" + ")");
+            }
+            for(int i = 0; i < tweetsList.length; i++) {
+                statement.executeUpdate("INSERT INTO tweets (content, author, `when`) VALUES (" + "\"" + tweetsList[i][0] + "\"" + ", " + "\"" + tweetsList[i][1] + "\"" + ", " + "\"" + tweetsList[i][2] + "\"" + ")");
+            }
+            for(int i = 0; i < commentsList.length; i++) {
+                statement.executeUpdate("INSERT INTO `comments` (`desc`, `when`, tweetid, commentor) VALUES (" + "\"" + commentsList[i][0] + "\"" + ", " + "\"" + commentsList[i][1] + "\"" + ", " + "\"" + commentsList[i][2] + "\"" + ", " + "\"" + commentsList[i][3] + "\"" + ")");
+            }
+            for(int i = 0; i < likesList.length; i++) {
+                statement.executeUpdate("INSERT INTO likes VALUES (" + "\"" + likesList[i][0] + "\"" + ", " + "\"" + likesList[i][1] + "\"" + ")");
+            }
+        }
+        catch (SQLException e ) {
+            System.out.println("An error has occured on Table Creation");
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e) {
+            System.out.println("An Mysql drivers were not found");
+        }
+        //statement.close(); uncommenting this line causes an error.
         //statement.executeUpdate(sql11);
     }
-    
-    public User verifyUser(String username, String password) throws SQLException {
-    	String loginUser = username;
-        String loginPassword = password;
+
+    public User verifyUser(String u, String p) throws SQLException {
+        String loginUser = u;
+        String loginPassword = p;
         User verified = null;
         List<User> listUser = new ArrayList<User>();
-        String sql = "SELECT * FROM User WHERE userid LIKE '%" + loginUser + "%'";
-        
+        String sql = "SELECT * FROM Users WHERE username LIKE '%" + loginUser + "%'";
+
         connect_func();
         statement =  (Statement) connect.createStatement();
         ResultSet resultSet = statement.executeQuery(sql);
 
         while (resultSet.next()) {
             int id = resultSet.getInt("id");
-            String UserID = resultSet.getString("UserID");
-            String Password = resultSet.getString("Password");
-            String FirstName = resultSet.getString("FirstName");
-            String LastName = resultSet.getString("LastName");
-            int Age = resultSet.getInt("Age");
-            int PPAddress = resultSet.getInt("PPAddress");
-            int PPWallet = resultSet.getInt("PPWallet");
-            int DollarWallet = resultSet.getInt("DollarWallet");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            int age = resultSet.getInt("age");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
 
-            User user = new User(id, UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
+            User user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
             listUser.add(user);
         }
         resultSet.close();
         statement.close();
         disconnect();
-        
-        System.out.println("THIS IS LIST USER USER:" + listUser.get(0).getUserID());
-        System.out.println("From form:" + loginUser);
-        System.out.println("THIS IS LIST USER PASSWORD:" + listUser.get(0).getPassword());
-        System.out.println("From form:" + loginPassword);        
-        
+
+        //System.out.println("THIS IS LIST USER USER:" + listUser.get(0).getUserID());
+        //System.out.println("From form:" + loginUser);
+        //System.out.println("THIS IS LIST USER PASSWORD:" + listUser.get(0).getPassword());
+        //System.out.println("From form:" + loginPassword);
+
+
         if (listUser.size() > 0) {
-        	if (listUser.get(0).getUserID().equals(loginUser) && listUser.get(0).getPassword().equals(loginPassword)) {
-        		//verified = true;
-        		//verified = listUser.get(0);
-        		//return verified;
-        		System.out.println("valid user");
-        		return listUser.get(0);
-        	}
-        	System.out.println("falling out");
+            if (listUser.get(0).getUsername().equals(loginUser) && listUser.get(0).getPassword().equals(loginPassword)) {
+                //verified = true;
+                //verified = listUser.get(0);
+                //return verified;
+                System.out.println("valid user");
+                return listUser.get(0);
+            }
+            System.out.println("falling out");
         }
         else {
-        	System.out.println("invalid user");
-        	return verified;
+            System.out.println("invalid user");
+            return verified;
         }
         //preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
         //preparedStatement.setString(1, user.UserID);
-        
+
 //		preparedStatement.executeUpdate();
 //        disconnect();
         System.out.println("invalid user 2");
         return verified;
     }
-    
+
     public boolean checkID(String check) throws SQLException {
-    	List<User> listUser = new ArrayList<User>();
-        String sql = "SELECT * FROM User WHERE userid LIKE '%" + check + "%'";
-        
+        List<User> listUser = new ArrayList<User>();
+        String sql = "SELECT * FROM Users WHERE username LIKE '%" + check + "%'";
+
         connect_func();
         statement =  (Statement) connect.createStatement();
         ResultSet resultSet = statement.executeQuery(sql);
 
         while (resultSet.next()) {
             int id = resultSet.getInt("id");
-            String UserID = resultSet.getString("UserID");
-            String Password = resultSet.getString("Password");
-            String FirstName = resultSet.getString("FirstName");
-            String LastName = resultSet.getString("LastName");
-            int Age = resultSet.getInt("Age");
-            int PPAddress = resultSet.getInt("PPAddress");
-            int PPWallet = resultSet.getInt("PPWallet");
-            int DollarWallet = resultSet.getInt("DollarWallet");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
 
-            User user = new User(id, UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
+            User user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
             listUser.add(user);
         }
         resultSet.close();
         statement.close();
         disconnect();
         if (listUser.size() > 0) {
-        	return false;
+            return false;
         }
         else {
-        	return true;
+            return true;
         }
     }
 
@@ -424,47 +407,74 @@ public class UserDAO {
         List<User> listUser = new ArrayList<User>();
         boolean check = true;
         while (check == true) {
-            String sql = "SELECT * FROM User WHERE ppaddress LIKE '%" + user.PPAddress + "%'";
-            
+            String sql = "SELECT * FROM Users WHERE ppaddress LIKE '%" + user.getPpaddress() + "%'";
+
             statement =  (Statement) connect.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
-                String UserID = resultSet.getString("UserID");
-                String Password = resultSet.getString("Password");
-                String FirstName = resultSet.getString("FirstName");
-                String LastName = resultSet.getString("LastName");
-                int Age = resultSet.getInt("Age");
-                int PPAddress = resultSet.getInt("PPAddress");
-                int PPWallet = resultSet.getInt("PPWallet");
-                int DollarWallet = resultSet.getInt("DollarWallet");
+                String username = resultSet.getString("username");
+                String password = resultSet.getString("password");
+                String firstname = resultSet.getString("firstname");
+                String lastname = resultSet.getString("lastname");
+                Integer age = resultSet.getInt("age");
+                String birthday = resultSet.getString("birthday");
+                Integer streetnumber = resultSet.getInt("streetnumber");
+                String street = resultSet.getString("street");
+                String city = resultSet.getString("city");
+                String state = resultSet.getString("state");
+                Integer zipcode = resultSet.getInt("zipcode");
+                Integer ppsbalance = resultSet.getInt("ppsbalance");
+                Double bankbalance = resultSet.getDouble("bankbalance");
+                Integer ppsaddress = resultSet.getInt("ppaddress");
 
-                User checkUser = new User(id, UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
+                User checkUser = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
                 listUser.add(checkUser);
             }
             resultSet.close();
             statement.close();
-            
+
             if (listUser.size() > 0) {
-            	user.PPAddress += 1;
-            	listUser.clear();
+                int ppad = user.getPpaddress();
+                ppad += 1;
+                listUser.clear();
             }
             else {
-            	check = false;
+                check = false;
             }
         }
-        
-        String sql = "insert into User(UserID, Password, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet) values (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        /*
+        String sql = "insert into Users(username, password, firstname, lastname, age, birthday, streetnumber, street, city, state, zipcode, ppbalance, bankbalance, ppaddress) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-        preparedStatement.setString(1, user.UserID);
-        preparedStatement.setString(2, user.Password);
-        preparedStatement.setString(3, user.FirstName);
-        preparedStatement.setString(4, user.LastName);
-        preparedStatement.setInt(5, user.Age);
-        preparedStatement.setInt(6, user.PPAddress);
-        preparedStatement.setInt(7, user.PPWallet);
-        preparedStatement.setDouble(8, user.DollarWallet);
+        preparedStatement.setString(1, user.getUsername());
+        preparedStatement.setString(2, user.getPassword());
+        preparedStatement.setString(3, user.getFirstname());
+        preparedStatement.setString(4, user.getLastname());
+        preparedStatement.setInt(5, user.getAge());
+        preparedStatement.setString(6, user.getBirthday());
+        preparedStatement.setInt(7, user.getStreetnumber());
+        preparedStatement.setString(8, user.getStreet());
+        preparedStatement.setString(9, user.getCity());
+        preparedStatement.setString(10, user.getState());
+        preparedStatement.setInt(11, user.getZipcode());
+        preparedStatement.setInt(12, user.getPpsbalance());
+        preparedStatement.setDouble(13, user.getBankbalance());
+        preparedStatement.setInt(14, user.getPpaddress());
+//		preparedStatement.executeUpdate();
+        */
+        
+        String sql = "insert into Users(username, password, firstname, lastname, age, PPAddress, ppsbalance, bankbalance) values (?, ?, ?, ?, ?, ?, ?, ?)";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, user.getUsername());
+        preparedStatement.setString(2, user.getPassword());
+        preparedStatement.setString(3, user.getFirstname());
+        preparedStatement.setString(4, user.getLastname());
+        preparedStatement.setInt(5, user.getAge());
+        preparedStatement.setInt(6, user.getPpaddress());
+        preparedStatement.setInt(7, user.getPpsbalance());
+        preparedStatement.setDouble(8, user.getBankbalance());
 //		preparedStatement.executeUpdate();
 
         boolean rowInserted = preparedStatement.executeUpdate() > 0;
@@ -474,7 +484,7 @@ public class UserDAO {
     }
 
     public boolean delete(int id) throws SQLException {
-        String sql = "DELETE FROM User WHERE id = ?";
+        String sql = "DELETE FROM Users WHERE id = ?";
         connect_func();
 
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
@@ -487,28 +497,129 @@ public class UserDAO {
     }
 
     public boolean update(User user) throws SQLException {
-        String sql = "update User set UserID=?, FirstName =?, LastName = ?, Age = ?, PPAddress = ?, PPWallet = ?, DollarWallet = ? where id = ?";
+        String sql = "update Users set username=?, firstname =?, lastname = ?, birthday = ?, streetnumber = ?, street = ?, city = ?, state = ?, zipcode = ?, ppsbalance = ?, bankbalance = ?, ppaddress = ? where id = ?";
         connect_func();
 
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-        preparedStatement.setString(1, user.UserID);
-        preparedStatement.setString(2, user.FirstName);
-        preparedStatement.setString(3, user.LastName);
-        preparedStatement.setInt(4, user.Age);
-        preparedStatement.setInt(5, user.PPAddress);
-        preparedStatement.setInt(6, user.PPWallet);
-        preparedStatement.setDouble(7, user.DollarWallet);
-        preparedStatement.setInt(8, user.id);
+        preparedStatement.setString(1, user.getUsername());
+        preparedStatement.setString(2, user.getPassword());
+        preparedStatement.setString(3, user.getFirstname());
+        preparedStatement.setString(4, user.getLastname());
+        preparedStatement.setString(5, user.getBirthday());
+        preparedStatement.setInt(6, user.getStreetnumber());
+        preparedStatement.setString(7, user.getStreet());
+        preparedStatement.setString(9, user.getCity());
+        preparedStatement.setString(10, user.getState());
+        preparedStatement.setInt(11, user.getZipcode());
+        preparedStatement.setInt(12, user.getPpsbalance());
+        preparedStatement.setDouble(13, user.getBankbalance());
+        preparedStatement.setInt(14, user.getPpaddress());
+        preparedStatement.setInt(15, user.getId());
 
         boolean rowUpdated = preparedStatement.executeUpdate() > 0;
         preparedStatement.close();
 //        disconnect();
         return rowUpdated;
     }
+    
+    public List getFollowees(User loggedIn) throws SQLException {
+    	List<String> followeeList = new ArrayList(); 
+        String sql = "SELECT * FROM follow WHERE followerid LIKE ?";
+
+        connect_func();
+
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, loggedIn.getUsername() + "%");
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+        	followeeList.add(resultSet.getString("followeeid"));
+        }
+        resultSet.close();
+        statement.close();
+        
+        if(followeeList.isEmpty()) {
+			followeeList.add("");
+		}
+
+        return followeeList;
+    }
+    
+    public List<User> getAllUsers() throws SQLException {
+    	List<User> userList = new ArrayList<User>();
+        User user = null;
+        String sql = "SELECT * FROM Users";
+
+        connect_func();
+
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+        	Integer id = resultSet.getInt("id");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
+
+            user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
+            if(resultSet.getInt("id") != 1) {
+            	userList.add(user);
+        	}
+        }
+        resultSet.close();
+        statement.close();
+
+        return userList;
+    }
+    
+    public User getUserFromName(String usernameGiven) throws SQLException {
+        User user = null;
+        String sql = "SELECT * FROM Users WHERE username = ?";
+
+        connect_func();
+
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, usernameGiven);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+        	int id = resultSet.getInt("id");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
+
+            user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
+        }
+        resultSet.close();
+        statement.close();
+
+        return user;
+    }
 
     public User getUser(int id) throws SQLException {
         User user = null;
-        String sql = "SELECT * FROM User WHERE id = ?";
+        String sql = "SELECT * FROM Users WHERE id = ?";
 
         connect_func();
 
@@ -517,21 +628,172 @@ public class UserDAO {
 
         ResultSet resultSet = preparedStatement.executeQuery();
 
-        if (resultSet.next()) {
-            String UserID = resultSet.getString("UserID");
-            String FirstName = resultSet.getString("FirstName");
-            String LastName = resultSet.getString("LastName");
-            int Age = resultSet.getInt("Age");
-            int PPAddress = resultSet.getInt("PPAddress");
-            int PPWallet = resultSet.getInt("PPWallet");
-            int DollarWallet = resultSet.getInt("DollarWallet");
+        while (resultSet.next()) {
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
 
-            user = new User(id, UserID, FirstName, LastName, Age, PPAddress, PPWallet, DollarWallet);
+            user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
         }
-
         resultSet.close();
         statement.close();
 
         return user;
     }
+    
+    public void updateFollowers(int followerid, int followeeid) throws SQLException {
+    	String sql = "SELECT * FROM Users WHERE id = ?";
+        connect_func();
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setInt(1, followerid);
+        ResultSet followerResult = preparedStatement.executeQuery();
+        String followeeUsername = "";
+        while(followerResult.next()) {
+        	followeeUsername = followerResult.getString("username");
+        }
+        
+        sql = "SELECT * FROM Users WHERE id = ?";
+        connect_func();
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setInt(1, followeeid);
+        ResultSet followeeResult = preparedStatement.executeQuery();
+        
+        String followerUsername = "";
+        while(followeeResult.next()) {
+        	followerUsername = followeeResult.getString("username");
+        }        
+        connect_func();
+        statement = connect.createStatement();
+
+        sql = "insert into follow (followerid, followeeid) values (" + "\"" + followerUsername + "\", " + "\"" + followeeUsername + "\")";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        followeeResult.close();
+        followerResult.close();
+        statement.close();
+	}
+    
+    public void removeFollowing(String followerid, String followeeid) throws SQLException {
+    	String sql = "DELETE FROM follow WHERE followerid = ? AND followeeid = ?";
+        connect_func();
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, followerid);
+        preparedStatement.setString(2, followeeid);
+        preparedStatement.executeUpdate();
+    }
+
+    public void BuyPPS(User loggedIn, float PPSbuyAmount) throws SQLException {
+    	float dollarAmount = PPSbuyAmount / 100;
+        float id = loggedIn.getId();
+        String sql;
+        connect_func();
+        statement = connect.createStatement();
+
+        sql = "update Users set ppsbalance=ppsbalance-" + PPSbuyAmount + " where id=1;";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+
+        sql = "update Users set bankbalance=bankbalance+" + dollarAmount + " where id=1;";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+
+        sql = "update Users set ppsbalance=ppsbalance+" + PPSbuyAmount + " where id=" + loggedIn.getId() + ";";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+
+        sql = "update Users set bankbalance=bankbalance-" + dollarAmount + " where id=" + loggedIn.getId() + ";";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        Date date = new Date();
+        Object param = new java.sql.Timestamp(date.getTime());
+        
+        sql = "INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES (?,?,?,?,?,?,?)";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, "root");
+        preparedStatement.setString(2, loggedIn.getUsername());
+        preparedStatement.setDouble(3, PPSbuyAmount);
+        preparedStatement.setDouble(4, 0);
+        preparedStatement.setObject(5, param);
+        preparedStatement.setString(6, "buy");
+        preparedStatement.setDouble(7, 0.01);
+        preparedStatement.executeUpdate();
+        //return true;
+    }
+
+    public void sellPPS(User loggedIn, float PPSsellAmount) throws SQLException {
+        float dollarAmount = PPSsellAmount / 100;
+        float id = loggedIn.getId();
+        String sql;
+        connect_func();
+        statement = connect.createStatement();
+
+        sql = "update Users set ppsbalance=ppsbalance+" + PPSsellAmount + " where id=1;";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+
+        sql = "update Users set bankbalance=bankbalance-" + dollarAmount + " where id=1;";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+
+        sql = "update Users set ppsbalance=ppsbalance-" + PPSsellAmount + " where id=" + loggedIn.getId() + ";";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+
+        sql = "update Users set bankbalance=bankbalance+" + dollarAmount + " where id=" + loggedIn.getId() + ";";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+
+        Date date = new Date();
+        Object param = new java.sql.Timestamp(date.getTime());
+        
+        sql = "INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES (?,?,?,?,?,?,?)";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, loggedIn.getUsername());
+        preparedStatement.setString(2, "root");
+        preparedStatement.setDouble(3, PPSsellAmount);
+        preparedStatement.setDouble(4, 0);
+        preparedStatement.setObject(5, param);
+        preparedStatement.setString(6, "sell");
+        preparedStatement.setDouble(7, 0.01);
+        preparedStatement.executeUpdate();
+        //return true;
+    }
+
+	public void tipPPS(User loggedIn, String toUser, Double ppsAmt) throws SQLException {
+		String sql;
+        connect_func();
+        sql = "UPDATE users SET ppsbalance=ppsbalance-" + ppsAmt + " WHERE username=" + "\"" + loggedIn.getUsername() + "\"";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+		
+        sql = "UPDATE users SET ppsbalance=ppsbalance+" + ppsAmt + " where username=" + "\"" + toUser + "\"";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        Date date = new Date();
+        Object param = new java.sql.Timestamp(date.getTime());
+        sql = "INSERT INTO transactions (fromuser, touser, ppsamt, dollaramt, `when`, transtype, price) VALUES (?,?,?,?,?,?,?)";
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, loggedIn.getUsername());
+        preparedStatement.setString(2, toUser);
+        preparedStatement.setDouble(3, ppsAmt);
+        preparedStatement.setDouble(4, 0);
+        preparedStatement.setObject(5, param);
+        preparedStatement.setString(6, "tip");
+        preparedStatement.setDouble(7, 0.01);
+        preparedStatement.executeUpdate();
+        
+	}
 }
