@@ -958,7 +958,7 @@ public class UserDAO {
 	
 	public List<User> GoodInfluencers() throws SQLException {
 		List<User> listUser = new ArrayList<User>();
-        String sql = "SELECT distinct * from Users WHERE ppsbalance = 0 AND username IN (SELECT distinct username FROM Users U, Transactions T WHERE (T.touser=U.username OR T.fromuser=U.username) AND (T.transtype='buy')) AND username NOT IN (SELECT distinct username FROM Users U, Transactions T WHERE (T.touser=U.username OR T.fromuser=U.username) AND (T.transtype='tip'));";
+        String sql = "SELECT DISTINCT T.touser FROM Transactions T, Follow F WHERE T.transtype='tip' AND T.touser=F.followeeid AND T.fromuser=followerid;";
 
         connect_func();
 
@@ -966,22 +966,10 @@ public class UserDAO {
         ResultSet resultSet = statement.executeQuery(sql);
 
         while (resultSet.next()) {
-        	int id = resultSet.getInt("id");
-            String username = resultSet.getString("username");
-            String password = resultSet.getString("password");
-            String firstname = resultSet.getString("firstname");
-            String lastname = resultSet.getString("lastname");
-            String birthday = resultSet.getString("birthday");
-            Integer streetnumber = resultSet.getInt("streetnumber");
-            String street = resultSet.getString("street");
-            String city = resultSet.getString("city");
-            String state = resultSet.getString("state");
-            Integer zipcode = resultSet.getInt("zipcode");
-            Integer ppsbalance = resultSet.getInt("ppsbalance");
-            Double bankbalance = resultSet.getDouble("bankbalance");
-            Integer ppsaddress = resultSet.getInt("ppaddress");
-
-            User user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
+        	int id = -1;
+            String username = resultSet.getString("touser");
+            
+            User user = new User(id, username);
             listUser.add(user);
         }
         resultSet.close();

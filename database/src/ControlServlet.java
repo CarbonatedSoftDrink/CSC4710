@@ -746,7 +746,9 @@ public class ControlServlet extends HttpServlet {
         List<User> listDiamondHands = userDAO.DiamondHands();
         request.setAttribute("listDiamondHands", listDiamondHands);
         List<User> listPaperHands = userDAO.PaperHands();
-        request.setAttribute("listPaperHands", listPaperHands); 
+        request.setAttribute("listPaperHands", listPaperHands);
+        List<User> listGoodInfluencers = userDAO.GoodInfluencers();
+        request.setAttribute("listGoodInfluencers", listGoodInfluencers); 
         
         info = "";
         

@@ -33,7 +33,7 @@
 		</c:forEach>
     </table>
 </div>
-
+<br>
 <div class="container-fluid mb-3" align="center">
 	<table border="1" cellpadding="5">
 	<caption><b>Paper Hands</b></caption>
@@ -49,30 +49,28 @@
 		</c:forEach>
     </table>
 </div>
-
+<br>
 <div class="container-fluid mb-3" align="center">
 	<table border="1" cellpadding="5">
 	<caption><b>Good Influencers</b></caption>
 		<tr>
-            <th>ID</th>
             <th>UserID</th>
         </tr>
         <c:forEach var="user" items="${listGoodInfluencers}">
         <tr>
-        	<td><c:out value="${user.id}" /></td>
             <td><c:out value="${user.username}" /></td>
         </tr>
 		</c:forEach>
     </table>
 </div>
-
+<br>
 <div align="center">
 <a href=inactiveusers>Inactive Users</a>
 </div>
-
+<br>
 <div align="center">
 <a href=userStats>User Statistics</a>
 </div>
-
+<br>
 </body>
 </html>
