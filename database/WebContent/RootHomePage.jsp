@@ -20,6 +20,48 @@
 
 <div class="container-fluid mb-3" align="center">
 	<table border="1" cellpadding="5">
+	<caption><b>Big Influencers</b></caption>
+		<tr>
+            <th>UserID</th>
+        </tr>
+        <c:forEach var="user" items="${listBigInfluencers}">
+        <tr>
+        	<td><c:out value="${user}" /></td>
+        </tr>
+		</c:forEach>
+    </table>
+</div>
+<br>
+<div class="container-fluid mb-3" align="center">
+	<table border="1" cellpadding="5">
+	<caption><b>Big Whales</b></caption>
+		<tr>
+            <th>UserID</th>
+        </tr>
+        <c:forEach var="user" items="${listBigWhales}">
+        <tr>
+        	<td><c:out value="${user}" /></td>
+        </tr>
+		</c:forEach>
+    </table>
+</div>
+<br>
+<div class="container-fluid mb-3" align="center">
+	<table border="1" cellpadding="5">
+	<caption><b>Frequent Buyers</b></caption>
+		<tr>
+            <th>UserID</th>
+        </tr>
+        <c:forEach var="user" items="${listFrequentBuyers}">
+        <tr>
+        	<td><c:out value="${user}" /></td>
+        </tr>
+		</c:forEach>
+    </table>
+</div>
+<br>
+<div class="container-fluid mb-3" align="center">
+	<table border="1" cellpadding="5">
 	<caption><b>Diamond Hands</b></caption>
 		<tr>
             <th>ID</th>

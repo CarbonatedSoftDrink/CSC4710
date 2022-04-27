@@ -797,6 +797,68 @@ public class UserDAO {
         
 	}
 	
+	
+	public List<String> BigInfluencers() throws SQLException {
+		List<String> listUser = new ArrayList<String>();
+        String sql = "SELECT followeeid FROM follow GROUP BY followeeid HAVING COUNT(*) = (SELECT COUNT(*) FROM follow GROUP BY followeeid ORDER BY COUNT(*) DESC LIMIT 1);";
+        connect_func();
+
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        while (resultSet.next()) {
+            listUser.add(resultSet.getString("followeeid"));
+        }
+        resultSet.close();
+        //statement.close();
+        statement.close();         
+        disconnect();  
+
+        return listUser;
+       
+	}
+	
+	public List<String> BigWhales() throws SQLException {
+		List<String> listUser = new ArrayList<String>();
+        String sql = "SELECT username FROM users ORDER BY ppsbalance DESC LIMIT 1;";
+        connect_func();
+
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        while (resultSet.next()) {
+            listUser.add(resultSet.getString("username"));
+        }
+        resultSet.close();
+        //statement.close();
+        statement.close();         
+        disconnect();  
+
+        return listUser;
+       
+	}
+	
+	public List<String> FrequentBuyers() throws SQLException {
+		List<String> listUser = new ArrayList<String>();
+        String sql = "SELECT COUNT(touser) AS transaction_count, touser FROM transactions GROUP BY touser ORDER BY COUNT(touser) DESC LIMIT 1";
+        connect_func();
+
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        while (resultSet.next()) {
+            listUser.add(resultSet.getString("touser"));
+            System.out.println(resultSet.getString("touser"));
+        }
+        resultSet.close();
+        //statement.close();
+        statement.close();         
+        disconnect();  
+
+        return listUser;
+       
+	}
+	
 	public List<User> DiamondHands() throws SQLException {
 		List<User> listUser = new ArrayList<User>();
         String sql = "SELECT distinct * FROM Users WHERE username NOT IN (SELECT distinct username FROM Users U, Transactions T WHERE (T.touser=U.username OR T.fromuser=U.username) AND (T.transtype='tip' OR T.transtype='sell'));";
