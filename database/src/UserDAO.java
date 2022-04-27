@@ -796,4 +796,199 @@ public class UserDAO {
         preparedStatement.executeUpdate();
         
 	}
+	
+	public List<User> DiamondHands() throws SQLException {
+		List<User> listUser = new ArrayList<User>();
+        String sql = "SELECT distinct * FROM Users WHERE username NOT IN (SELECT distinct username FROM Users U, Transactions T WHERE (T.touser=U.username OR T.fromuser=U.username) AND (T.transtype='tip' OR T.transtype='sell'));";
+
+        connect_func();
+
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        while (resultSet.next()) {
+        	int id = resultSet.getInt("id");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
+
+            User user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
+            listUser.add(user);
+        }
+        resultSet.close();
+        //statement.close();
+        statement.close();         
+        disconnect();  
+
+        return listUser;
+        
+	}
+	
+	public List<User> PaperHands() throws SQLException {
+		List<User> listUser = new ArrayList<User>();
+        String sql = "SELECT distinct * from Users WHERE ppsbalance = 0 AND username IN (SELECT distinct username FROM Users U, Transactions T WHERE (T.touser=U.username OR T.fromuser=U.username) AND (T.transtype='buy')) AND username NOT IN (SELECT distinct username FROM Users U, Transactions T WHERE (T.touser=U.username OR T.fromuser=U.username) AND (T.transtype='tip'));";
+
+        connect_func();
+
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        while (resultSet.next()) {
+        	int id = resultSet.getInt("id");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
+
+            User user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
+            listUser.add(user);
+        }
+        resultSet.close();
+        //statement.close();
+        statement.close();         
+        disconnect();  
+
+        return listUser;
+        
+	}
+	
+	public boolean SearchTest(String query){
+		List<User> listUser = new ArrayList<User>();
+	    String sql = "SELECT DISTINCT U.id, U.username FROM Users U, Transactions T WHERE U.username NOT IN (SELECT touser FROM Transactions WHERE `when` BETWEEN '" + query + " 00:00:00' AND '" + query + " 23:59:59') AND username NOT IN (SELECT fromuser FROM Transactions WHERE `when` BETWEEN '"+ query +" 00:00:00' AND '" + query + " 23:59:59');";
+
+	    if (query.matches(("[0-9-/]+"))){
+	    	return true;
+	    }
+	    else {
+	        return false;
+	    }
+	}
+	
+	public List<User> InactiveUsers(String givenDate) throws SQLException {
+		List<User> listUser = new ArrayList<User>();
+        String sql = "SELECT DISTINCT U.id, U.username FROM Users U, Transactions T WHERE U.username NOT IN (SELECT touser FROM Transactions WHERE `when` BETWEEN '" + givenDate + " 00:00:00' AND '" + givenDate + " 23:59:59') AND username NOT IN (SELECT fromuser FROM Transactions WHERE `when` BETWEEN '"+ givenDate +" 00:00:00' AND '" + givenDate + " 23:59:59');";
+
+        connect_func();
+
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        while (resultSet.next()) {
+        	int id = resultSet.getInt("id");
+            String username = resultSet.getString("username");
+
+            User user = new User(id, username);
+            listUser.add(user);
+        }
+        resultSet.close();
+        //statement.close();
+        statement.close();         
+        disconnect();  
+
+        return listUser;
+	}
+	
+	public List<Integer> UserStats(String username) throws SQLException{
+		List<Integer> listStats = new ArrayList<Integer>();
+		String sql;
+		int answer = 0;
+        connect_func();
+        
+        sql = "SELECT * FROM Transactions WHERE transtype='buy' AND (touser='" + username +"' OR fromuser='" + username + "');";
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+        while (resultSet.next()) {
+        	answer += 1;
+        }
+        listStats.add(answer);
+        answer = 0;
+        
+        sql = "SELECT * FROM Transactions WHERE transtype='sell' AND (touser='" + username +"' OR fromuser='" + username +"');";
+        resultSet = statement.executeQuery(sql);
+        while (resultSet.next()) {
+        	answer += 1;
+        }
+        listStats.add(answer);
+        answer = 0;
+        
+        sql = "SELECT * FROM Transactions WHERE transtype='tip' AND (touser='" + username +"' OR fromuser='" + username +"');";
+        resultSet = statement.executeQuery(sql);
+        while (resultSet.next()) {
+        	answer += 1;
+        }
+        listStats.add(answer);
+        answer = 0;
+        
+        sql = "SELECT * FROM Follow WHERE followerid='" + username + "';";
+        resultSet = statement.executeQuery(sql);
+        while (resultSet.next()) {
+        	answer += 1;
+        }
+        listStats.add(answer);
+        answer = 0;
+        
+        sql = "SELECT * FROM Follow WHERE followeeid='" + username + "';";
+        resultSet = statement.executeQuery(sql);
+        while (resultSet.next()) {
+        	answer += 1;
+        }
+        listStats.add(answer);
+        
+        return listStats;
+        }
+	
+	public List<User> GoodInfluencers() throws SQLException {
+		List<User> listUser = new ArrayList<User>();
+        String sql = "SELECT distinct * from Users WHERE ppsbalance = 0 AND username IN (SELECT distinct username FROM Users U, Transactions T WHERE (T.touser=U.username OR T.fromuser=U.username) AND (T.transtype='buy')) AND username NOT IN (SELECT distinct username FROM Users U, Transactions T WHERE (T.touser=U.username OR T.fromuser=U.username) AND (T.transtype='tip'));";
+
+        connect_func();
+
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        while (resultSet.next()) {
+        	int id = resultSet.getInt("id");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String firstname = resultSet.getString("firstname");
+            String lastname = resultSet.getString("lastname");
+            String birthday = resultSet.getString("birthday");
+            Integer streetnumber = resultSet.getInt("streetnumber");
+            String street = resultSet.getString("street");
+            String city = resultSet.getString("city");
+            String state = resultSet.getString("state");
+            Integer zipcode = resultSet.getInt("zipcode");
+            Integer ppsbalance = resultSet.getInt("ppsbalance");
+            Double bankbalance = resultSet.getDouble("bankbalance");
+            Integer ppsaddress = resultSet.getInt("ppaddress");
+
+            User user = new User(id, username, password, firstname, lastname, birthday, streetnumber, street, city, state, zipcode, ppsbalance, bankbalance, ppsaddress);
+            listUser.add(user);
+        }
+        resultSet.close();
+        //statement.close();
+        statement.close();         
+        disconnect();  
+
+        return listUser;
+	}
 }

@@ -59,6 +59,22 @@ public class ControlServlet extends HttpServlet {
         System.out.println(action);
         try {
             switch (action) {
+            case "/searchUser":
+            	System.out.println("The action is: searchUser");
+                searchUser(request, response);           	
+                break;
+            case "/userStats":
+            	System.out.println("The action is: showUserStats");
+                showUserStats(request, response);           	
+                break;
+            case "/inactiveusers":
+            	System.out.println("The action is: inactiveusers");
+                showInactiveUsers(request, response);           	
+                break;
+            case "/searchDay":
+                System.out.println("The action is: findDay");
+                findDay(request, response);
+                break;
             case "/addLike":
                 System.out.println("The action is: addLike");
                 addLike(request, response);
@@ -184,6 +200,101 @@ public class ControlServlet extends HttpServlet {
             throw new ServletException(ex);
         }
         System.out.println("doGet finished: 111111111111111111111111111111111111");
+    }
+    
+    private void searchUser(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("searchUser started: 00000000000000000000000000000000000");
+        
+        List<Integer> answers = new ArrayList<Integer>();
+        int buys = 0;
+        int sells = 0;
+        int tips = 0;
+        int followers = 0;
+        int followees = 0;
+        String givenUser = request.getParameter("findUser");
+        if (givenUser.equals("")) {
+            info = "Empty user contents, please enter a username.";
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/userStats");
+            dispatcher.forward(request, response);
+        }
+        else {
+        	info = "";
+        	answers = userDAO.UserStats(givenUser);
+        	buys = answers.get(0);
+        	sells = answers.get(1);
+        	tips = answers.get(2);
+        	followers = answers.get(3);
+        	followees = answers.get(4);
+        	
+        	request.setAttribute("username", givenUser);
+        	request.setAttribute("buys", buys);
+        	request.setAttribute("sells", sells);
+        	request.setAttribute("tips", tips);
+        	request.setAttribute("followers", followers);
+        	request.setAttribute("followees", followees);
+        	
+        	RequestDispatcher dispatcher = request.getRequestDispatcher("/userStats");       
+            dispatcher.forward(request, response);
+        }
+        
+        System.out.println("searchUser finished: 111111111111111111111111111111111111");
+        
+    	
+    }
+    
+    private void showUserStats(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showInactiveUsers started: 00000000000000000000000000000000000");
+        
+        request.setAttribute("info", info);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("UserStats.jsp");       
+        dispatcher.forward(request, response);
+     
+        System.out.println("showUserStats finished: 111111111111111111111111111111111111");
+    }
+    
+    private void showInactiveUsers(HttpServletRequest request, HttpServletResponse response) 
+    		throws SQLException, IOException, ServletException{
+        System.out.println("showInactiveUsers started: 00000000000000000000000000000000000");
+        
+        request.setAttribute("info", info);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("InactiveUsers.jsp");       
+        dispatcher.forward(request, response);
+     
+        System.out.println("showInactiveUsers finished: 111111111111111111111111111111111111");
+    }
+    
+    private void findDay(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException{
+        System.out.println("findDay started: 00000000000000000000000000000000000");
+        String givenDate = request.getParameter("findDay");
+        if (givenDate.equals("")) {
+            info = "Empty date contents, please enter a date.";
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/inactiveusers");
+            dispatcher.forward(request, response);
+        }
+        else {
+        	info = "";
+        	boolean hold = userDAO.SearchTest(givenDate);
+        	if (hold == false) {
+        		info = "Invalid date given. Please try again.";
+        		System.out.println("Failure");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/inactiveusers");
+                dispatcher.forward(request, response);
+        	}
+        	else{
+        		info = "Found date!";
+        		System.out.println("Working...");
+        		List<User> listUsers = userDAO.InactiveUsers(givenDate);
+        		request.setAttribute("listInactiveUsers", listUsers);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/inactiveusers");
+                dispatcher.forward(request, response);
+
+                System.out.println("findDay finished: 1111111111111111111111111111");
+        	}
+        }
+        System.out.println("findDay2 finished: 1111111111111111111111111111");
     }
 
 	private void tipPPS(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
@@ -632,7 +743,13 @@ public class ControlServlet extends HttpServlet {
     		throws SQLException, IOException, ServletException{
         System.out.println("showRootPage started: 00000000000000000000000000000000000");
         
+        List<User> listDiamondHands = userDAO.DiamondHands();
+        request.setAttribute("listDiamondHands", listDiamondHands);
+        List<User> listPaperHands = userDAO.PaperHands();
+        request.setAttribute("listPaperHands", listPaperHands); 
+        
         info = "";
+        
         RequestDispatcher dispatcher = request.getRequestDispatcher("RootHomePage.jsp");       
         dispatcher.forward(request, response);
         System.out.println("showRootPage finished: 00000000000000000000000000000000000");

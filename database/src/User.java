@@ -19,6 +19,11 @@ public class User implements Serializable {
     private Double bankbalance;
     private Integer ppaddress;
     
+    public User(int id, String username) {
+    	this.id = id;
+    	this.username = username;
+    }
+    
     public User(int id, String UserID, String Password, String FirstName, String LastName, int Age, int PPAddress) {
         this(UserID, Password, FirstName, LastName, Age, PPAddress);
         this.id = id;
