@@ -34,6 +34,7 @@ public class UserDAO {
     private static final long serialVersionUID = 1L;
     private PreparedStatement preparedStatement;
     private Statement statement;
+    private Statement statement2;
     private ResultSet result;
     private Connection connect;
 
@@ -798,6 +799,26 @@ public class UserDAO {
 	}
 	
 	
+	public List<String> Users() throws SQLException {
+		List<String> listUser = new ArrayList<String>();
+        String sql = "SELECT username FROM users WHERE username != \"root\";";
+        connect_func();
+
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        while (resultSet.next()) {
+            listUser.add(resultSet.getString("username"));
+        }
+        resultSet.close();
+        //statement.close();
+        statement.close();         
+        disconnect();  
+
+        return listUser;
+       
+	}
+	
 	public List<String> BigInfluencers() throws SQLException {
 		List<String> listUser = new ArrayList<String>();
         String sql = "SELECT followeeid FROM follow GROUP BY followeeid HAVING COUNT(*) = (SELECT COUNT(*) FROM follow GROUP BY followeeid ORDER BY COUNT(*) DESC LIMIT 1);";
@@ -851,6 +872,106 @@ public class UserDAO {
             System.out.println(resultSet.getString("touser"));
         }
         resultSet.close();
+        //statement.close();
+        statement.close();         
+        disconnect();  
+
+        return listUser;
+       
+	}
+	
+	public List<String> GoodFollowers() throws SQLException {
+		List<String> listUser = new ArrayList<String>();
+		String sql0 = "SELECT * FROM users";
+        connect_func();
+     
+
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql0);
+        Integer userCount = 0;
+        if (resultSet == null) { userCount = 0; }
+        try {
+            resultSet.last();
+            userCount = resultSet.getRow()-2;
+        } catch (SQLException exp) {
+            exp.printStackTrace();
+        } finally {
+            try {
+                resultSet.beforeFirst();
+            } catch (SQLException exp) {
+                exp.printStackTrace();
+            }
+        }
+        
+        while (resultSet.next()) {
+        	Integer count = 0;
+            String name = resultSet.getString("username");
+            statement2 = (Statement) connect.createStatement();
+            ResultSet followResultSet = statement2.executeQuery("SELECT * FROM follow WHERE followerid=" + "\"" + name + "\";");
+            if (followResultSet == null) { count = 0; }
+            try {
+            	followResultSet.last();
+                count = followResultSet.getRow();
+            } catch (SQLException exp) {
+                exp.printStackTrace();
+            } finally {
+                try {
+                	followResultSet.beforeFirst();
+                } catch (SQLException exp) {
+                    exp.printStackTrace();
+                }
+            }
+            
+            while (followResultSet.next()) {
+            	if(followResultSet.getString("followeeid") == name) {
+            		count = 0;
+            	}
+            	if(followResultSet.getString("followeeid") == "root") {
+            		count--;
+            	}
+            }
+            
+            if(count == userCount) {
+            	listUser.add(name);
+            }
+            followResultSet.close();
+        }
+        
+        resultSet.close();
+        //statement.close();
+        statement.close();         
+        disconnect();  
+
+        return listUser;
+       
+	}
+	
+	public List<String> CommonFollowers(String username1, String username2) throws SQLException {
+		List<String> listUser = new ArrayList<String>();
+		List<String> list1 = new ArrayList<String>();
+		List<String> list2 = new ArrayList<String>();
+		String sql0 = "SELECT * FROM follow WHERE followeeid=" + "\"" + username1 + "\";";
+		String sql1 = "SELECT * FROM follow WHERE followeeid=" + "\"" + username2 + "\";";
+        connect_func();
+        
+        statement =  (Statement) connect.createStatement();
+        ResultSet resultSet1 = statement.executeQuery(sql0);
+        while (resultSet1.next()) {
+            String name1 = resultSet1.getString("followerid");
+            System.out.println("Testing Name 1:" + name1);
+            statement2 =  (Statement) connect.createStatement();
+            ResultSet resultSet2 = statement2.executeQuery(sql1);
+            while (resultSet2.next()) {
+            	String name2 = resultSet2.getString("followerid");
+            	System.out.println("Testing Name 2:" + name2);
+            	if(name1 == name2) {
+            		listUser.add(name1);
+            	}
+            }
+            resultSet2.close();
+        }
+        
+        resultSet1.close();
         //statement.close();
         statement.close();         
         disconnect();  

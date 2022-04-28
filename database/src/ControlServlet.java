@@ -743,12 +743,19 @@ public class ControlServlet extends HttpServlet {
     		throws SQLException, IOException, ServletException{
         System.out.println("showRootPage started: 00000000000000000000000000000000000");
         
+        List<String> listUsers = userDAO.Users();
+        request.setAttribute("listUsers", listUsers);
+        
         List<String> listBigInfluencers = userDAO.BigInfluencers();
         request.setAttribute("listBigInfluencers", listBigInfluencers);
         List<String> listBigWhales = userDAO.BigWhales();
         request.setAttribute("listBigWhales", listBigWhales);
         List<String> listFrequentBuyers = userDAO.FrequentBuyers();
         request.setAttribute("listFrequentBuyers", listFrequentBuyers);
+        List<String> listGoodFollowers = userDAO.GoodFollowers();
+        request.setAttribute("listGoodFollowers", listGoodFollowers);
+        List<User> listDiamondHands = userDAO.DiamondHands();
+        request.setAttribute("listDiamondHands", listDiamondHands);
         List<User> listPaperHands = userDAO.PaperHands();
         request.setAttribute("listPaperHands", listPaperHands);
         List<User> listGoodInfluencers = userDAO.GoodInfluencers();

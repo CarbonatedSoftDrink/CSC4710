@@ -8,6 +8,7 @@
 <title>Root Twitter Home Page</title>
 </head>
 <body>
+<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 
 <div align="center">
         <h1>Welcome to Twitter</h1>
@@ -59,6 +60,40 @@
 		</c:forEach>
     </table>
 </div>
+<br>
+<div class="container-fluid mb-3" align="center">
+	<table border="1" cellpadding="5">
+	<caption><b>Good Followers</b></caption>
+		<tr>
+            <th>UserID</th>
+        </tr>
+        <c:forEach var="user" items="${listGoodFollowers}">
+        <tr>
+        	<td><c:out value="${user}" /></td>
+        </tr>
+		</c:forEach>
+    </table>
+</div>
+<br>
+<div align="center">
+	<form name="commonFollowerForm" method="post" action="commonFollowerServlet">
+	 	<select name="user1">
+	        <c:forEach items="${listUsers}" var="user">
+	            <option value="${user}">${user}</option>
+	        </c:forEach>
+	    </select>
+	    <select name="user2">
+	        <c:forEach items="${listUsers}" var="user">
+	            <option value="${user}">${user}</option>
+	        </c:forEach>
+	    </select>
+	    <br/><br/>
+	    <input type="submit" value="Submit" />
+	</form>
+	<tr>
+    	<td><c:out value="${commonFollowers}"/></td>
+    </tr>
+	</div>
 <br>
 <div class="container-fluid mb-3" align="center">
 	<table border="1" cellpadding="5">
